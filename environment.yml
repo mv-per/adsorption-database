@@ -1,0 +1,7 @@
+name: adsorption_database
+channels:
+  - defaults
+dependencies:
+  - python=3.7.16
+  - attrs=22.1
+  - h5py=3.7
