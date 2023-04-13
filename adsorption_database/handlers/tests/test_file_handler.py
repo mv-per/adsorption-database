@@ -18,9 +18,7 @@ def test_mono_file_handler(datadir: Path) -> None:
 
     adsorbate = Adsorbate("adsorbate name", "adsorbate_formula")
 
-    pure_data = MonoIsothermTextFileData(
-        "pure_example.txt", adsorbate, 0, 1, pressure_conversion_factor_to_Pa=1e6
-    )
+    pure_data = MonoIsothermTextFileData("pure_example.txt", adsorbate, 0, 1)
 
     pressure, loadings = handler.get_mono_data(pure_data)
 
@@ -28,6 +26,37 @@ def test_mono_file_handler(datadir: Path) -> None:
     assert type(loadings) == np.ndarray
 
     assert pressure.shape == loadings.shape
+
+
+def test_mono_file_handler_with_factors(datadir: Path) -> None:
+
+    handler = TextFileHandler(datadir)
+
+    adsorbate = Adsorbate("adsorbate name", "adsorbate_formula")
+
+    pure_data = MonoIsothermTextFileData(
+        "pure_example.txt",
+        adsorbate,
+        0,
+        1,
+    )
+
+    pressure, loadings = handler.get_mono_data(pure_data)
+
+    pure_data_with_factors = MonoIsothermTextFileData(
+        "pure_example.txt",
+        adsorbate,
+        0,
+        1,
+        pressure_conversion_factor_to_Pa=1e6,
+        loadings_conversion_factor_to_mol_per_kg=10,
+    )
+
+    pressure2, loadings2 = handler.get_mono_data(pure_data_with_factors)
+
+    for p1, p2, n1, n2 in zip(pressure, pressure2, loadings, loadings2):
+        assert pytest.approx(p2 / p1) == 1e6
+        assert pytest.approx(n2 / n1) == 10
 
 
 def test_mix_file_handler(datadir: Path) -> None:
@@ -38,7 +67,7 @@ def test_mix_file_handler(datadir: Path) -> None:
     adsorbate2 = Adsorbate("adsorbate 2 name", "adsorbate_2_formula")
 
     mixture_data = MixIsothermTextFileData(
-        "mixture_example.txt",
+        "mixture_two_components_example.txt",
         [adsorbate1, adsorbate2],
         0,
         [2, 4],
@@ -54,6 +83,44 @@ def test_mix_file_handler(datadir: Path) -> None:
     assert type(compositions) == np.ndarray
 
     assert compositions.shape == loadings.shape
+
+
+def test_mix_file_handler_with_factors(datadir: Path) -> None:
+
+    handler = TextFileHandler(datadir)
+
+    adsorbate1 = Adsorbate("adsorbate 1 name", "adsorbate_1_formula")
+    adsorbate2 = Adsorbate("adsorbate 2 name", "adsorbate_2_formula")
+
+    mixture_data = MixIsothermTextFileData(
+        "mixture_two_components_example.txt",
+        [adsorbate1, adsorbate2],
+        0,
+        [2, 4],
+        [1],
+        load_missing_composition_from_equilibrium=True,
+    )
+
+    pressure, loadings, _ = handler.get_mix_data(mixture_data)
+
+    mixture_data2 = MixIsothermTextFileData(
+        "mixture_two_components_example.txt",
+        [adsorbate1, adsorbate2],
+        0,
+        [2, 4],
+        [1],
+        load_missing_composition_from_equilibrium=True,
+        loadings_conversion_factor_to_mol_per_kg=10,
+        pressure_conversion_factor_to_Pa=1e6,
+    )
+
+    pressure2, loadings2, _ = handler.get_mix_data(mixture_data2)
+
+    for p1, p2, n1, n2 in zip(pressure, pressure2, loadings, loadings2):
+        assert pytest.approx(p2 / p1) == 1e6
+
+        for nn1, nn2 in zip(n1, n2):
+            assert pytest.approx(nn2 / nn1) == 10
 
 
 @pytest.mark.parametrize(

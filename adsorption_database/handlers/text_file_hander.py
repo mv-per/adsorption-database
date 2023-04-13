@@ -35,7 +35,7 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
     and multi-component isotherms.
     """
 
-    def __init__(self, folder: Optional[Path] = None) -> None:
+    def __init__(self, folder: Path) -> None:
         """
         Constructor to initialize the TextFileHandler object.
 
@@ -46,12 +46,7 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         Returns:
             None
         """
-        if folder is None:
-            from adsorption_database.defaults import EXPERIMENTS_FOLDER
-
-            self._experiments_folder = EXPERIMENTS_FOLDER
-        else:
-            self._experiments_folder = folder
+        self._folder_path = folder
 
     def get_mono_data(
         self, file_data: MonoIsothermTextFileData
@@ -66,7 +61,7 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         Returns:
             Tuple[List[float], List[float]]: A tuple containing two lists: pressures and loadings.
         """
-        file_path = self._experiments_folder / file_data.file_name
+        file_path = self._folder_path / file_data.file_name
 
         file = np.loadtxt(file_path)
         pressures = file[:, file_data.pressures_col]
@@ -96,7 +91,7 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
             Tuple[np.array, np.ndarray, np.ndarray]: A tuple containing three lists: pressures,
             loadings, and compositions.
         """
-        file_path = self._experiments_folder / file_data.file_name
+        file_path = self._folder_path / file_data.file_name
 
         file = np.loadtxt(file_path)
         pressures = file[:, file_data.pressures_col]
@@ -126,8 +121,8 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
 
         if file_data.loadings_conversion_factor_to_mol_per_kg is not None:
 
-            for component_loadings in loadings_list:
-                component_loadings = (
+            for i, component_loadings in enumerate(loadings_list):
+                loadings_list[i] = (
                     component_loadings * file_data.loadings_conversion_factor_to_mol_per_kg
                 )
 
