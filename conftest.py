@@ -1,16 +1,8 @@
-from typing import Type
 import numpy as np
 import pytest
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.isotherms import IsothermType, MixIsotherm, MonoIsotherm
-import h5py
-
-
-class Helpers:
-    @staticmethod
-    def check_registered_adsorbate(adsorbate: Adsorbate, registered_adsorbate: h5py.Group) -> None:
-        assert adsorbate.name == registered_adsorbate.attrs["name"]
-        assert adsorbate.chemical_formula == registered_adsorbate.attrs["chemical_formula"]
+from adsorption_database.helpers import Helpers
 
 
 pressures = np.arange(10, dtype="float64")
@@ -38,8 +30,6 @@ def mono_isotherm(co2_adsorbate: Adsorbate) -> MonoIsotherm:
         adsorbate=co2_adsorbate,
         pressures=pressures,
         loadings=loadings_1,
-        heats_of_adsorption=loadings_2,
-        comments="this is a mock isotherm",
     )
 
 

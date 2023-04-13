@@ -7,4 +7,5 @@ MONO_ISOTHERMS = 'Pure'
 MIXTURE_ISOTHERMS = 'Mixture'
 EXPERIMENTS='Experiments'
 ADSORBATES='Adsorbates'
+ADSORBENTS='Adsorbents'
 SEPARATOR="\--\\"

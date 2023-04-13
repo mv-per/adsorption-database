@@ -9,7 +9,9 @@ from adsorption_database.handlers.text_file_hander import (
     MonoIsothermTextFileData,
     TextFileHandler,
 )
+from adsorption_database.helpers import Helpers
 from adsorption_database.models.adsorbate import Adsorbate
+from adsorption_database.models.isotherms import IsothermType
 
 
 def test_mono_file_handler(datadir: Path) -> None:
@@ -179,3 +181,50 @@ def test_mix_file_handler_raise_index_error(datadir: Path) -> None:
 
     with pytest.raises(IndexError):
         handler.get_mix_data(mixture_data)
+
+
+def test_create_mono_isotherm(datadir: Path, data_regression, helpers: Helpers) -> None:
+
+    handler = TextFileHandler(datadir)
+
+    adsorbate = Adsorbate("adsorbate name", "adsorbate_formula")
+
+    pure_data = MonoIsothermTextFileData(
+        "pure_example.txt",
+        adsorbate,
+        0,
+        1,
+    )
+
+    mono_isotherm = handler.create_mono_isotherm("isotherm 1", IsothermType.ABSOLUTE, pure_data)
+
+    serialized = helpers.dump_object(mono_isotherm)
+    data_regression.check(serialized)
+
+
+def test_create_mix_isotherm(
+    co2_adsorbate: Adsorbate,
+    ch4_adsorbate: Adsorbate,
+    datadir: Path,
+    data_regression,
+    helpers: Helpers,
+) -> None:
+
+    handler = TextFileHandler(datadir)
+
+    adsorbate = Adsorbate("adsorbate name", "adsorbate_formula")
+
+    mixture_data = MixIsothermTextFileData(
+        "mixture_two_components_example.txt",
+        [co2_adsorbate, ch4_adsorbate],
+        0,
+        [2, 4],
+        [1],
+        load_missing_composition_from_equilibrium=True,
+        pressure_conversion_factor_to_Pa=1e6,
+    )
+
+    mono_isotherm = handler.create_mix_isotherm("isotherm 1", IsothermType.ABSOLUTE, mixture_data)
+
+    serialized = helpers.dump_object(mono_isotherm)
+    data_regression.check(serialized)

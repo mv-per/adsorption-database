@@ -1,12 +1,20 @@
 from pathlib import Path
 from typing import Tuple
 import numpy as np
-from adsorption_database.defaults import ADSORBATES, EXPERIMENTS, MIXTURE_ISOTHERMS, MONO_ISOTHERMS
+from adsorption_database.defaults import (
+    ADSORBATES,
+    ADSORBENTS,
+    EXPERIMENTS,
+    MIXTURE_ISOTHERMS,
+    MONO_ISOTHERMS,
+)
 from adsorption_database.handlers.abstract_handler import AbstractHandler
 import pytest
 import os
 from pytest_mock import MockerFixture
 from adsorption_database.models.adsorbate import Adsorbate
+from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
+from adsorption_database.models.experiment import Experiment, ExperimentType
 from adsorption_database.storage_provider import StorageProvider
 from adsorption_database.models.isotherms import (
     MixIsotherm,
@@ -15,8 +23,8 @@ from adsorption_database.models.isotherms import (
     MonoIsothermFileData,
 )
 import numpy.typing as npt
-
-from conftest import Helpers
+from pytest_regressions.data_regression import DataRegressionFixture
+from adsorption_database.helpers import Helpers
 
 
 class TestAbstractHandler(AbstractHandler[MonoIsothermFileData, MixIsothermFileData]):
@@ -32,13 +40,12 @@ class TestAbstractHandler(AbstractHandler[MonoIsothermFileData, MixIsothermFileD
 
 
 @pytest.fixture(autouse=True)
-def setup_storage(datadir: Path, mocker: MockerFixture) -> None:
+def setup_storage(datadir: Path, mocker: MockerFixture) -> Path:
     storage_path = Path(datadir / "test_storage.hdf5")
 
-    if storage_path.exists():
-        os.remove(storage_path.resolve())
-
     mocker.patch.object(StorageProvider, "get_file_path", return_value=storage_path)
+
+    return storage_path
 
 
 def test_get_isotherm_store_name(mono_isotherm: MonoIsotherm) -> None:
@@ -46,14 +53,55 @@ def test_get_isotherm_store_name(mono_isotherm: MonoIsotherm) -> None:
     assert handler.get_isotherm_store_name(mono_isotherm) == "Mono Isotherm-Excess"
 
 
-def test_register_adsorbate(co2_adsorbate: Adsorbate, helpers: Helpers) -> None:
+def test_register_adsorbate(
+    co2_adsorbate: Adsorbate,
+    helpers: Helpers,
+    setup_storage: Path,
+    data_regression: DataRegressionFixture,
+) -> None:
     handler = TestAbstractHandler()
 
     handler.register_adsorbate(co2_adsorbate)
 
-    with StorageProvider().get_readable_file() as file:
-        assert "Carbon Dioxide" in list(file[ADSORBATES])
-        helpers.check_registered_adsorbate(co2_adsorbate, file[ADSORBATES]["Carbon Dioxide"])
+    storage_tree = helpers.dump_storage_tree(setup_storage)
+
+    data_regression.check({"tree": storage_tree})
+
+
+def test_register_experiment(
+    co2_adsorbate: Adsorbate,
+    ch4_adsorbate: Adsorbate,
+    mix_isotherm: MixIsotherm,
+    mono_isotherm: MonoIsotherm,
+    helpers: Helpers,
+    setup_storage: Path,
+    data_regression: DataRegressionFixture,
+) -> None:
+
+    handler = TestAbstractHandler()
+
+    handler.register_adsorbate(co2_adsorbate)
+    handler.register_adsorbate(ch4_adsorbate)
+
+    z01x = Adsorbent(name="z01x", type=AdsorbentType.ZEOLITE)
+
+    handler.register_adsorbent(z01x)
+
+    experiment = Experiment(
+        name="Sudi",
+        authors=["a", "b", "c"],
+        adsorbent=z01x,
+        experiment_type=ExperimentType.VOLUMETRIC,
+        temperature=318.2,
+        monocomponent_isotherms=[mono_isotherm],
+        mixture_isotherms=[mix_isotherm],
+    )
+
+    handler.register_experiment(experiment)
+
+    storage_tree = helpers.dump_storage_tree(setup_storage)
+
+    data_regression.check({"tree": storage_tree})
 
 
 def test_get_groups() -> None:
@@ -126,7 +174,11 @@ def test_upsert_dataset_type_o_error() -> None:
 
 
 def test_register_mono_isotherm(
-    co2_adsorbate: Adsorbate, mono_isotherm: MonoIsotherm, helpers: Helpers
+    co2_adsorbate: Adsorbate,
+    mono_isotherm: MonoIsotherm,
+    helpers: Helpers,
+    data_regression: DataRegressionFixture,
+    setup_storage: Path,
 ) -> None:
 
     handler = TestAbstractHandler()
@@ -141,29 +193,18 @@ def test_register_mono_isotherm(
 
         handler.register_mono_isotherm(mono_isotherm, experiment_group)
 
-        assert ADSORBATES in list(f)
-        assert experiment_name in list(f[EXPERIMENTS])
-        assert MONO_ISOTHERMS in list(f[EXPERIMENTS][experiment_name])
+    storage_tree = helpers.dump_storage_tree(setup_storage)
 
-        registered_isotherm = f[
-            f"{EXPERIMENTS}/{experiment_name}/{MONO_ISOTHERMS}/{mono_isotherm.name}-{mono_isotherm.isotherm_type.value}"
-        ]
-
-        assert "loadings" in list(registered_isotherm)
-        assert "pressures" in list(registered_isotherm)
-
-        assert (registered_isotherm["loadings"] == mono_isotherm.loadings).all()
-        assert (registered_isotherm["pressures"] == mono_isotherm.pressures).all()
-
-        helpers.check_registered_adsorbate(co2_adsorbate, registered_isotherm["adsorbate"])
-
-        for attr_ in ["name"]:
-            assert attr_ in list(registered_isotherm.attrs)
-            assert registered_isotherm.attrs[attr_] == getattr(mono_isotherm, attr_)
+    data_regression.check({"tree": storage_tree})
 
 
 def test_register_mix_isotherm(
-    co2_adsorbate: Adsorbate, ch4_adsorbate: Adsorbate, mix_isotherm: MixIsotherm, helpers: Helpers
+    co2_adsorbate: Adsorbate,
+    ch4_adsorbate: Adsorbate,
+    mix_isotherm: MixIsotherm,
+    helpers: Helpers,
+    data_regression: DataRegressionFixture,
+    setup_storage: Path,
 ) -> None:
 
     handler = TestAbstractHandler()
@@ -179,24 +220,62 @@ def test_register_mix_isotherm(
 
         handler.register_mix_isotherm(mix_isotherm, experiment_group)
 
-        assert ADSORBATES in list(f)
-        assert experiment_name in list(f[EXPERIMENTS])
-        assert MIXTURE_ISOTHERMS in list(f[EXPERIMENTS][experiment_name])
+    storage_tree = helpers.dump_storage_tree(setup_storage)
 
-        registered_isotherm = f[
-            f"{EXPERIMENTS}/{experiment_name}/{MIXTURE_ISOTHERMS}/{mix_isotherm.name}-{mix_isotherm.isotherm_type.value}"
-        ]
+    data_regression.check({"tree": storage_tree})
 
-        assert (registered_isotherm["loadings"] == mix_isotherm.loadings).all()
-        assert (registered_isotherm["pressures"] == mix_isotherm.pressures).all()
-        assert (registered_isotherm["bulk_composition"] == mix_isotherm.bulk_composition).all()
 
-        for adsorbate, registered_adsorbate in zip(
-            [co2_adsorbate, ch4_adsorbate], registered_isotherm["adsorbates"]
-        ):
-            group = handler.get_group(registered_adsorbate.decode(), f)
-            helpers.check_registered_adsorbate(adsorbate, group)
+def test_register_experiment(
+    mono_isotherm: MonoIsotherm,
+    co2_adsorbate: Adsorbate,
+    ch4_adsorbate: Adsorbate,
+    mix_isotherm: MixIsotherm,
+    helpers: Helpers,
+    setup_storage: Path,
+    data_regression: DataRegressionFixture,
+) -> None:
 
-        for attr_ in ["name"]:
-            assert attr_ in list(registered_isotherm.attrs)
-            assert registered_isotherm.attrs[attr_] == getattr(mix_isotherm, attr_)
+    handler = TestAbstractHandler()
+
+    handler.register_adsorbate(co2_adsorbate)
+    handler.register_adsorbate(ch4_adsorbate)
+
+    z01x = Adsorbent(name="z01x", type=AdsorbentType.ZEOLITE)
+
+    handler.register_adsorbent(z01x)
+
+    experiment = Experiment(
+        name="Sudi",
+        authors=["a", "b", "c"],
+        adsorbent=z01x,
+        experiment_type=ExperimentType.VOLUMETRIC,
+        temperature=318.2,
+        monocomponent_isotherms=[mono_isotherm],
+        mixture_isotherms=[mix_isotherm],
+    )
+
+    handler.register_experiment(experiment)
+
+    storage_tree = helpers.dump_storage_tree(setup_storage)
+
+    data_regression.check({"tree": storage_tree})
+
+
+def test_not_implemented_mono(co2_adsorbate: Adsorbate) -> None:
+
+    handler = TestAbstractHandler()
+
+    file = MonoIsothermFileData(file_name="test", adsorbate=co2_adsorbate)
+
+    with pytest.raises(NotImplementedError):
+        handler.get_mono_data(file)
+
+
+def test_not_implemented_mix(co2_adsorbate: Adsorbate) -> None:
+
+    handler = TestAbstractHandler()
+
+    file = MixIsothermFileData(file_name="test", adsorbates=[co2_adsorbate])
+
+    with pytest.raises(NotImplementedError):
+        handler.get_mix_data(file)

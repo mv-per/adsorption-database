@@ -1,0 +1,39 @@
+py/object: adsorption_database.models.isotherms.MonoIsotherm
+py/state:
+  py/tuple:
+  - isotherm 1
+  - py/reduce:
+    - py/type: adsorption_database.models.isotherms.IsothermType
+    - py/tuple:
+      - Absolute
+  - py/object: adsorption_database.models.adsorbate.Adsorbate
+    py/state:
+      py/tuple:
+      - adsorbate name
+      - adsorbate_formula
+  - base:
+      byteorder: <
+      dtype: float64
+      py/object: numpy.ndarray
+      shape:
+      - 21
+      - 1
+      - 3
+      values: eJybNRMEHtq/Cdwh1/r6r33GxLc19qb/7DVj+g991Xhj/+XvlYqXaswOt3/WZe0pYXZY5/6wSmTdZ/t6IG+yBJvDL5DwZDaHbxogDT/s+XQ3zX2/nMMBrD2G0yENDFgcHi+dfURhA48D1/XFBbZcfA4gU9wfsjlc9k0SiLCE8fkdwNLXuR1CwBr4HcD2zBBwgLhH0MFyy4myffMFHKJSrO/78wo5GIOBsANId9UUAQeX7pznvzWFHIJA3gkUdbAFWyjosG++lP5dFWEHsPAOCYd8oeYDpxQFIfaFCzucPQMC0g5g/28VdGic6tydky7iAPZGv5yDU8LTC0rRgg53VdiAUiJQcxQcPEAOPy7o4AfyhokoRD2/kgMPk3a7WKSgw8FTC123fRZxqAY7UNnh5rnvwY+XCkLtg7pvrwrUfYIOihuKMibmikL9qwblCzo8/73y4yVfMQeQrXKt6g6g0Ge5JgClRSHh/EwDEh/CglB/iDkwgECDlgMb2EMCDpIsYXy6RmIOAFNT1VM=
+    dtype: float64
+    py/object: numpy.ndarray
+    shape:
+    - 21
+    strides:
+    - 24
+  - base:
+      py/id: 4
+    dtype: float64
+    offset: 8
+    py/object: numpy.ndarray
+    shape:
+    - 21
+    strides:
+    - 24
+  - null
+  - null

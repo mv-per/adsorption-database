@@ -1,10 +1,13 @@
 from abc import abstractmethod
-from typing import Generic, Optional, Tuple, TypeVar, Union
+from attrs import fields
+from typing import Generic, Optional, Tuple, TypeVar, Union, List, Any
+import enum
 from h5py import File, Group, SoftLink
 import numpy as np
 import numpy.typing as npt
 from adsorption_database.defaults import (
     ADSORBATES,
+    ADSORBENTS,
     EXPERIMENTS,
     MIXTURE_ISOTHERMS,
     MONO_ISOTHERMS,
@@ -19,6 +22,7 @@ from adsorption_database.models import (
     Adsorbate,
     Experiment,
 )
+from adsorption_database.models.adsorbent import Adsorbent
 from adsorption_database.models.isotherms import MixIsothermFileData, MonoIsothermFileData
 
 from adsorption_database.storage_provider import StorageProvider
@@ -157,11 +161,47 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
 
         with self._storage_provider.get_editable_file() as file:
             adsorbates_group = self.get_group(ADSORBATES, file)
-            adsorbate_group = self.get_group(adsorbate.name, adsorbates_group)
+            group = self.get_group(adsorbate.name, adsorbates_group)
+            attribute_fields = [field.name for field in fields(Adsorbate)]
+            self._register_attributes(attribute_fields, adsorbate, group)
 
-            # register attributes
-            adsorbate_group.attrs.create("name", adsorbate.name)
-            adsorbate_group.attrs.create("chemical_formula", adsorbate.chemical_formula)
+    def _register_attributes(self, fields: List[str], object: Any, group: Group) -> None:
+
+        for field in fields:
+            val = getattr(object, field)
+            if val is None:
+                continue
+            if isinstance(val, enum.Enum):
+                val = val.value
+            group.attrs.create(field, val)
+
+    def _register_datasets(self, dataset_names: List[str], object: Any, group: Group) -> None:
+
+        for dataset_name in dataset_names:
+            val = getattr(object, dataset_name)
+            if val is None:
+                continue
+            self.upsert_dataset(group, dataset_name, val)
+
+    def register_adsorbent(self, adsorbent: Adsorbent) -> None:
+        """
+        Register an Adsorbent in the HDF5 file.
+
+        This method registers an `Adsorbent` object in the HDF5 file, storing its information as attributes
+        in a group within the 'Adsorbents' group in the file. The group is created if it does not already exist.
+
+        Args:
+            adsorbent (Adsorbent): The Adsorbent object to register.
+
+        Returns:
+            None
+        """
+
+        with self._storage_provider.get_editable_file() as file:
+            adsorbents_group = self.get_group(ADSORBENTS, file)
+            group = self.get_group(adsorbent.name, adsorbents_group)
+            attribute_fields = [field.name for field in fields(Adsorbent)]
+            self._register_attributes(attribute_fields, adsorbent, group)
 
     def register_experiment(self, experiment: Experiment):
         """
@@ -183,10 +223,12 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             group = self.get_group(experiment.name, experiments_group)
 
             # register attributes
-            group.attrs.create("name", experiment.name)
-            group.attrs.create("temperature", experiment.temperature)
-            group.attrs.create("adsorbent", experiment.adsorbent.name)
-            group.attrs.create("experiment_type", experiment.experiment_type.value)
+            attribute_fields = [field.name for field in fields(Experiment) if field.type not in [
+                Adsorbent, List[MonoIsotherm], List[MixIsotherm]
+            ]]
+
+            self._register_attributes(attribute_fields, experiment, group)
+
 
             # register datasets
             isotherm_names = []
@@ -223,20 +265,25 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
 
         isotherm_group = self.get_group(stored_isotherm_name, pure_isotherms_group)
 
-        isotherm_group.attrs["name"] = isotherm.name
-        isotherm_group.attrs["isotherm_type"] = isotherm.isotherm_type.value
+        # remove the arrays and adsorbate since they are stored as data_sets
+        attribute_fields = [
+            field.name
+            for field in fields(MonoIsotherm)
+            if field.type
+            not in [npt.NDArray[np.float64], Adsorbate, Optional[npt.NDArray[np.float64]]]
+        ]
+        self._register_attributes(attribute_fields, isotherm, isotherm_group)
+
+        dataset_names = [
+            field.name
+            for field in fields(MonoIsotherm)
+            if field.type in [npt.NDArray[np.float64], Optional[npt.NDArray[np.float64]]]
+        ]
+
+        self._register_datasets(dataset_names, isotherm, isotherm_group)
 
         adsorbate_group_route = self.get_adsorbate_group_route(isotherm.adsorbate.name)
         isotherm_group["adsorbate"] = SoftLink(adsorbate_group_route)
-
-        if isotherm.comments is not None:
-            isotherm_group.attrs.create("comments", isotherm.comments)
-
-        self.upsert_dataset(isotherm_group, "pressures", isotherm.pressures)
-        self.upsert_dataset(isotherm_group, "loadings", isotherm.loadings)
-
-        if isotherm.heats_of_adsorption is not None:
-            self.upsert_dataset(isotherm_group, "heats_of_adsorption", isotherm.heats_of_adsorption)
 
         return stored_isotherm_name
 
@@ -261,11 +308,18 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
 
         isotherm_group = self.get_group(stored_isotherm_name, mixture_isotherms_group)
 
-        isotherm_group.attrs.create("name", isotherm.name)
-        isotherm_group.attrs.create("isotherm_type", isotherm.isotherm_type.value)
+        # remove the arrays and adsorbate since they are stored as data_sets
+        attribute_fields = [
+            field.name
+            for field in fields(MixIsotherm)
+            if field.type not in [npt.NDArray[np.float64], List[Adsorbate]]
+        ]
+        self._register_attributes(attribute_fields, isotherm, isotherm_group)
 
-        if isotherm.comments is not None:
-            isotherm_group.attrs.create("comments", isotherm.comments)
+        dataset_names = [
+            field.name for field in fields(MixIsotherm) if field.type in [npt.NDArray[np.float64]]
+        ]
+        self._register_datasets(dataset_names, isotherm, isotherm_group)
 
         # Since h5py still doesn't support storing arrays with object type, for mixtures we store the
         # full path to the adsorbate. In doing this, on de-serializing the stored object, the code must
@@ -276,10 +330,6 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
                 for adsorbate in isotherm.adsorbates
             ]
         )
-
-        self.upsert_dataset(isotherm_group, "pressures", isotherm.pressures)
-        self.upsert_dataset(isotherm_group, "loadings", isotherm.loadings)
-        self.upsert_dataset(isotherm_group, "bulk_composition", isotherm.bulk_composition)
 
         return stored_isotherm_name
 

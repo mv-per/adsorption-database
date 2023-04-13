@@ -1,0 +1,46 @@
+py/object: adsorption_database.models.isotherms.MixIsotherm
+py/state:
+  py/tuple:
+  - isotherm 1
+  - py/reduce:
+    - py/type: adsorption_database.models.isotherms.IsothermType
+    - py/tuple:
+      - Absolute
+  - - py/object: adsorption_database.models.adsorbate.Adsorbate
+      py/state:
+        py/tuple:
+        - Carbon Dioxide
+        - CO2
+    - py/object: adsorption_database.models.adsorbate.Adsorbate
+      py/state:
+        py/tuple:
+        - Methane
+        - CH4
+  - byteorder: <
+    dtype: float64
+    py/object: numpy.ndarray
+    shape:
+    - 2
+    - 10
+    values: eJyrFlnn/rDqjb26Iccamag39rX2pnG7PN/Yrzjmbd7p+MZ+1cdLvkkCb+yBkinW91/bNx84tdB122t7EM+/97U9WFvKa/u7KmyNU51f22vE9B/6qrHH/kTZvvlS+nvtJVjC+HQ37bUHa/u8135DUcbEtzX77QN6p+cJNR+w//L3SsVLtYP2M0C8UwftbYCmTs87ZN+T8/z3yo+H7AHenk93
+  - dtype: float64
+    py/object: numpy.ndarray
+    values:
+    - 770000.0
+    - 1460000.0
+    - 2810000.0
+    - 4120000.0
+    - 5550000.0
+    - 6920000.0
+    - 8300000.000000001
+    - 9670000.0
+    - 11040000.0
+    - 12410000.0
+  - byteorder: <
+    dtype: float64
+    py/object: numpy.ndarray
+    shape:
+    - 2
+    - 10
+    values: eJx7WCWyzv3hP3v51teBO+RYHDweggQ4HHzMOx0TnnI6fFh+zNu8k8vhV13WnpLJXA4gUoKFy6Fd7Oa578GcDtUg7VUcDqpsjVOdu9kd9s2X0r+r8sjei4dJu13spf22z3+vVLz8YD/NuTvn+e/P9mDtYd/s3wBta3393f70Qlegkh/2TglPLyjd/mn/Z+XHS75Jv+wtt5wo2zf/lz0AhQhOIA==
+  - null
