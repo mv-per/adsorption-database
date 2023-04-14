@@ -38,16 +38,6 @@ class TestAbstractHandler(AbstractHandler[MonoIsothermFileData, MixIsothermFileD
     ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         return super().get_mix_data(file_data)
 
-
-@pytest.fixture(autouse=True)
-def setup_storage(datadir: Path, mocker: MockerFixture) -> Path:
-    storage_path = Path(datadir / "test_storage.hdf5")
-
-    mocker.patch.object(StorageProvider, "get_file_path", return_value=storage_path)
-
-    return storage_path
-
-
 def test_get_isotherm_store_name(mono_isotherm: MonoIsotherm) -> None:
     handler = TestAbstractHandler()
     assert handler.get_isotherm_store_name(mono_isotherm) == "Mono Isotherm-Excess"
@@ -123,53 +113,6 @@ def test_get_groups() -> None:
         handler.get_mono_isotherm_group(f)
         handler.get_mix_isotherm_group(f)
         handler.get_experiment_group(f)
-
-
-def test_upsert_dataset() -> None:
-
-    handler = TestAbstractHandler()
-
-    dataset_name = "my_dataset"
-    with StorageProvider().get_editable_file() as f:
-        assert dataset_name not in list(f)
-
-        # Test creating dataset
-        dataset_values = np.array([1, 2, 3, 4, 5, 6, 7], dtype="float64")
-        handler.upsert_dataset(f, dataset_name, dataset_values)
-        assert (np.array(f[dataset_name]) == dataset_values).all()
-
-        # Test updating dataset to a different shape
-        dataset_values = np.array([8, 9, 10, 11, 12], dtype="float64")
-        handler.upsert_dataset(f, dataset_name, dataset_values)
-        assert (np.array(f[dataset_name]) == dataset_values).all()
-
-        # Test updating dataset to a different shape increazing column
-        a = np.array([1, 2, 3, 4, 5, 6, 7], dtype="float64")
-        b = np.array([8, 9, 10, 11, 12, 13, 14], dtype="float64")
-        assert (
-            a.shape == b.shape
-        )  # Without ensuring the same length, the new dataset will have type 'O', causing an error in the upsert method
-        dataset_values = np.array([a, b])
-
-        handler.upsert_dataset(f, dataset_name, dataset_values)
-        assert (np.array(f[dataset_name]) == dataset_values).all()
-
-
-def test_upsert_dataset_type_o_error() -> None:
-
-    handler = TestAbstractHandler()
-
-    dataset_name = "my_dataset"
-
-    with StorageProvider().get_editable_file() as f:
-        a = np.array([1, 2, 3, 4, 5, 6, 7], dtype="float64")
-        b = np.array([4, 5, 6], dtype="float64")
-        dataset_values = np.array([a, b])
-
-        with pytest.raises(TypeError) as exc_info:
-            handler.upsert_dataset(f, dataset_name, dataset_values)
-
-        assert str(exc_info.value) == "Object dtype dtype('O') has no native HDF5 equivalent"
 
 
 def test_register_mono_isotherm(
