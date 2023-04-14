@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 from attr import define
 from adsorption_database.models import MonoIsothermFileData, MixIsothermFileData
@@ -7,6 +7,12 @@ from adsorption_database.handlers.abstract_handler import AbstractHandler
 import numpy as np
 
 import numpy.typing as npt
+
+from collections import namedtuple
+
+GetLoadingsFromAdsorbed = namedtuple(
+    "GetLoadingsFromAdsorbed", "get_missing_x_from_eq pos_x pos_nt"
+)
 
 
 @define
@@ -25,6 +31,7 @@ class MixIsothermTextFileData(MixIsothermFileData):
     load_missing_composition_from_equilibrium: Optional[bool] = False
     pressure_conversion_factor_to_Pa: Optional[float] = None
     loadings_conversion_factor_to_mol_per_kg: Optional[float] = None
+    get_loadings_from_adsorbed: Optional[GetLoadingsFromAdsorbed] = None
 
 
 class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextFileData]):
@@ -78,6 +85,91 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
 
         return pressures, loadings
 
+    def get_bulk_composition(
+        self, file: Any, file_data: MixIsothermFileData, pressures: npt.NDArray[np.float64]
+    ) -> npt.NDArray[np.float64]:
+
+        compositions_list = []
+        for index in range(len(file_data.adsorbates)):
+
+            try:
+                component_compositions = file[:, file_data.composition_cols[index]]
+            except IndexError:
+                if file_data.load_missing_composition_from_equilibrium:
+                    component_compositions = []
+
+                    for index in range(len(pressures)):
+                        x_sum = 0
+                        for comp in compositions_list:
+                            x_sum += list(comp)[index]
+                        component_compositions.append(1 - x_sum)
+                else:
+                    raise
+            compositions_list.append(np.array(component_compositions))
+
+        return compositions_list
+
+    def get_loadings_from_adsorbed_compositions(
+        self, file: Any, file_data: MixIsothermFileData, pressures: npt.NDArray[np.float64]
+    ) -> npt.NDArray[np.float64]:
+
+        adsorbed_x_list: List[npt.NDArray[np.float64]] = []
+        loadings_list: List[npt.NDArray[np.float64]] = []
+
+        x_cols = file_data.get_loadings_from_adsorbed.pos_x
+        nt = file[
+            :,
+            file_data.get_loadings_from_adsorbed.pos_nt,
+        ]
+        for index in range(len(file_data.adsorbates)):
+
+            try:
+                component_compositions = file[:, x_cols[index]]
+            except IndexError:
+                if file_data.get_loadings_from_adsorbed.get_missing_x_from_eq:
+                    component_compositions = []
+
+                    for index in range(len(pressures)):
+                        x_sum = 0
+                        for comp in adsorbed_x_list:
+                            x_sum += list(comp)[index]
+                        component_compositions.append(1 - x_sum)
+                else:
+                    raise
+            adsorbed_x_list.append(np.array(component_compositions))
+            loadings_list.append(np.array(component_compositions * nt))
+
+        return loadings_list
+
+    def get_loading_list(
+        self, file: Any, file_data: MixIsothermTextFileData, pressures: npt.NDArray[np.float64]
+    ) -> npt.NDArray[np.float64]:
+
+        if file_data.get_loadings_from_adsorbed is not None:
+            return self.get_loadings_from_adsorbed_compositions(file, file_data, pressures)
+
+        loadings_list = []
+        for index in range(len(file_data.adsorbates)):
+            loadings_list.append(file[:, file_data.loadings_cols[index]])
+        return loadings_list
+
+    def check_conversion_factors(
+        self,
+        pressures: npt.NDArray[np.float64],
+        loadings_list: npt.NDArray[np.float64],
+        file_data: MixIsothermTextFileData,
+    ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+        if file_data.pressure_conversion_factor_to_Pa is not None:
+            pressures = pressures * file_data.pressure_conversion_factor_to_Pa
+
+        if file_data.loadings_conversion_factor_to_mol_per_kg is not None:
+            for i, component_loadings in enumerate(loadings_list):
+                loadings_list[i] = (
+                    component_loadings * file_data.loadings_conversion_factor_to_mol_per_kg
+                )
+
+        return pressures, loadings_list
+
     def get_mix_data(
         self, file_data: MixIsothermTextFileData
     ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
@@ -96,36 +188,12 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
 
         file = np.loadtxt(file_path)
         pressures = file[:, file_data.pressures_col]
+        loadings_list = self.get_loading_list(file, file_data, pressures)
+        compositions_list = self.get_bulk_composition(file, file_data, pressures)
 
-        loadings_list: List[npt.NDArray[np.float64]] = []
-        compositions_list: List[npt.NDArray[np.float64]] = []
-        for index in range(len(file_data.adsorbates)):
-            loadings_list.append(file[:, file_data.loadings_cols[index]])
-
-            try:
-                component_compositions = file[:, file_data.composition_cols[index]]
-            except IndexError:
-                if file_data.load_missing_composition_from_equilibrium:
-                    component_compositions = []
-
-                    for index in range(len(pressures)):
-                        x_sum = 0
-                        for comp in compositions_list:
-                            x_sum += list(comp)[index]
-                        component_compositions.append(1 - x_sum)
-                else:
-                    raise
-            compositions_list.append(np.array(component_compositions))
-
-        if file_data.pressure_conversion_factor_to_Pa is not None:
-            pressures = pressures * file_data.pressure_conversion_factor_to_Pa
-
-        if file_data.loadings_conversion_factor_to_mol_per_kg is not None:
-
-            for i, component_loadings in enumerate(loadings_list):
-                loadings_list[i] = (
-                    component_loadings * file_data.loadings_conversion_factor_to_mol_per_kg
-                )
+        pressures, loadings_list = self.check_conversion_factors(
+            pressures, loadings_list, file_data
+        )
 
         loadings = np.array(loadings_list)
         compositions = np.array(compositions_list)

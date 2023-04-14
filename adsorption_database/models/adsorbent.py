@@ -5,14 +5,15 @@ from attr import define
 
 
 class AdsorbentType(Enum):
-    ZEOLITE='Zeolite'
-    ACTIVATED_CARBON='Activated Carbon'
-    MOF='Metal-organic framework'
-    SILICA='Silica'
+    ZEOLITE = "Zeolite"
+    ACTIVATED_CARBON = "Activated Carbon"
+    MOF = "Metal-organic framework"
+    SILICA = "Silica"
 
 
 @define
 class Adsorbent:
-    type:AdsorbentType
-    name:str
-    density:Optional[float] = None
+    type: AdsorbentType
+    name: str
+    void_volume: Optional[float] = None
+    density: Optional[float] = None
