@@ -196,7 +196,9 @@ def test_create_mono_isotherm(datadir: Path, data_regression, helpers: Helpers) 
         1,
     )
 
-    mono_isotherm = handler.create_mono_isotherm("isotherm 1", IsothermType.ABSOLUTE, pure_data)
+    mono_isotherm = handler.create_mono_isotherm(
+        "isotherm 1", 300, IsothermType.ABSOLUTE, pure_data
+    )
 
     serialized = helpers.dump_object(mono_isotherm)
     data_regression.check(serialized)
@@ -224,7 +226,9 @@ def test_create_mix_isotherm(
         pressure_conversion_factor_to_Pa=1e6,
     )
 
-    mono_isotherm = handler.create_mix_isotherm("isotherm 1", IsothermType.ABSOLUTE, mixture_data)
+    mono_isotherm = handler.create_mix_isotherm(
+        "isotherm 1", 300, IsothermType.ABSOLUTE, mixture_data
+    )
 
     serialized = helpers.dump_object(mono_isotherm)
     data_regression.check(serialized)

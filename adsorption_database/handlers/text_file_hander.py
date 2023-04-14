@@ -46,6 +46,7 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         Returns:
             None
         """
+        super().__init__()
         self._folder_path = folder
 
     def get_mono_data(

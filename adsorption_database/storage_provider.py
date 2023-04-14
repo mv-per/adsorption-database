@@ -5,7 +5,10 @@ from h5py import File
 
 class StorageProvider:
     def get_file_path(self) -> Path:
-        return Path("storage.hdf5")  # pragma: no cover
+
+        return Path(
+            Path(__file__).parent.absolute() / "storage" / "storage.hdf5"
+        )  # pragma: no cover
 
     @contextmanager
     def get_editable_file(self) -> File:

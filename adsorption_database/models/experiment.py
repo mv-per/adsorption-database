@@ -15,7 +15,6 @@ class ExperimentType(Enum):
 @define
 class Experiment:
     name: str
-    temperature: float
     adsorbent: Adsorbent
     experiment_type: ExperimentType
     monocomponent_isotherms: List[MonoIsotherm] = []
@@ -24,3 +23,4 @@ class Experiment:
     paper_url: Optional[str] = None
     authors: Optional[List[str]] = None
     year: Optional[str] = None
+    paper_doi: Optional[str] = None

@@ -30,6 +30,7 @@ def mono_isotherm(co2_adsorbate: Adsorbate) -> MonoIsotherm:
         adsorbate=co2_adsorbate,
         pressures=pressures,
         loadings=loadings_1,
+        temperature=300,
     )
 
 
@@ -43,6 +44,7 @@ def mix_isotherm(co2_adsorbate: Adsorbate, ch4_adsorbate: Adsorbate) -> MixIsoth
         comments="this is a mock isotherm",
         loadings=np.array([loadings_1, loadings_2], dtype="float64"),
         bulk_composition=np.array([x_1, x_2], dtype="float64"),
+        temperature=300,
     )
 
 

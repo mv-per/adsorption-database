@@ -24,9 +24,15 @@ class IsothermType(Enum):
 
 
 @define
-class MonoIsotherm:
+class Isotherm:
     name: str
     isotherm_type: IsothermType
+    temperature: float
+    comments: Optional[str]
+
+
+@define
+class MonoIsotherm(Isotherm):
     adsorbate: Adsorbate
     pressures: npt.NDArray[np.float64]
     loadings: npt.NDArray[np.float64]
@@ -35,9 +41,7 @@ class MonoIsotherm:
 
 
 @define
-class MixIsotherm:
-    name: str
-    isotherm_type: IsothermType
+class MixIsotherm(Isotherm):
     adsorbates: List[Adsorbate]
     bulk_composition: npt.NDArray[np.float64]
     pressures: npt.NDArray[np.float64]

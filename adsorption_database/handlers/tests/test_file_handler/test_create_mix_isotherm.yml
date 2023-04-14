@@ -6,6 +6,7 @@ py/state:
     - py/type: adsorption_database.models.isotherms.IsothermType
     - py/tuple:
       - Absolute
+  - 300
   - - py/object: adsorption_database.models.adsorbate.Adsorbate
       py/state:
         py/tuple:

@@ -92,7 +92,6 @@ def test_register_experiment(
         authors=["a", "b", "c"],
         adsorbent=z01x,
         experiment_type=ExperimentType.VOLUMETRIC,
-        temperature=318.2,
         monocomponent_isotherms=[mono_isotherm],
         mixture_isotherms=[mix_isotherm],
     )
@@ -249,7 +248,6 @@ def test_register_experiment(
         authors=["a", "b", "c"],
         adsorbent=z01x,
         experiment_type=ExperimentType.VOLUMETRIC,
-        temperature=318.2,
         monocomponent_isotherms=[mono_isotherm],
         mixture_isotherms=[mix_isotherm],
     )

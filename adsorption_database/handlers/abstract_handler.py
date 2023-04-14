@@ -13,6 +13,7 @@ from adsorption_database.defaults import (
     MONO_ISOTHERMS,
     SEPARATOR,
 )
+from adsorption_database.helpers import Helpers
 
 
 from adsorption_database.models import (
@@ -223,12 +224,13 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             group = self.get_group(experiment.name, experiments_group)
 
             # register attributes
-            attribute_fields = [field.name for field in fields(Experiment) if field.type not in [
-                Adsorbent, List[MonoIsotherm], List[MixIsotherm]
-            ]]
+            attribute_fields = [
+                field.name
+                for field in fields(Experiment)
+                if field.type not in [Adsorbent, List[MonoIsotherm], List[MixIsotherm]]
+            ]
 
             self._register_attributes(attribute_fields, experiment, group)
-
 
             # register datasets
             isotherm_names = []
@@ -283,6 +285,8 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
         self._register_datasets(dataset_names, isotherm, isotherm_group)
 
         adsorbate_group_route = self.get_adsorbate_group_route(isotherm.adsorbate.name)
+        if "adsorbate" in list(isotherm_group):
+            del isotherm_group["adsorbate"]
         isotherm_group["adsorbate"] = SoftLink(adsorbate_group_route)
 
         return stored_isotherm_name
@@ -324,6 +328,8 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
         # Since h5py still doesn't support storing arrays with object type, for mixtures we store the
         # full path to the adsorbate. In doing this, on de-serializing the stored object, the code must
         # check whether the adsorbate still exists in the storage
+        if "adsorbates" in list(isotherm_group):
+            del isotherm_group["adsorbates"]
         isotherm_group["adsorbates"] = np.array(
             [
                 str.encode(self.get_adsorbate_group_route(adsorbate.name))
@@ -332,6 +338,16 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
         )
 
         return stored_isotherm_name
+
+    def gen_regression(self) -> None:
+        import json
+
+        path = self._storage_provider.get_file_path()
+        regression = Helpers().dump_storage_tree(path)
+
+        data = {"data": regression}
+        with open(path.parent.resolve() / "storage_regression.json", "w") as f:
+            json.dump(data, f)
 
     @abstractmethod
     def get_mono_data(
@@ -354,6 +370,7 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
     def create_mono_isotherm(
         self,
         name: str,
+        temperature: float,
         isotherm_type: IsothermType,
         file_data: _MonoFileData,
         heats_of_adsorption: Optional[npt.NDArray[np.float64]] = None,
@@ -389,6 +406,7 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             heats_of_adsorption=heats_of_adsorption,
             loadings=loadings,
             comments=comments,
+            temperature=temperature,
         )
 
     @abstractmethod
@@ -414,6 +432,7 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
     def create_mix_isotherm(
         self,
         name: str,
+        temperature: float,
         isotherm_type: IsothermType,
         file_data: _MixFileData,
         comments: Optional[str] = None,
@@ -445,4 +464,5 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             loadings=loadings,
             bulk_composition=bulk_composition,
             comments=comments,
+            temperature=temperature,
         )
