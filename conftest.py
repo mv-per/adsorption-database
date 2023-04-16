@@ -45,6 +45,18 @@ def mono_isotherm(co2_adsorbate: Adsorbate) -> MonoIsotherm:
         temperature=300,
     )
 
+@pytest.fixture
+def mono_isotherm_with_heats_of_adsorption(co2_adsorbate: Adsorbate) -> MonoIsotherm:
+    return MonoIsotherm(
+        name="Mono Isotherm",
+        isotherm_type=IsothermType.EXCESS,
+        adsorbate=co2_adsorbate,
+        pressures=pressures,
+        loadings=loadings_1,
+        heats_of_adsorption=loadings_1,
+        temperature=300,
+    )
+
 
 @pytest.fixture
 def mix_isotherm(co2_adsorbate: Adsorbate, ch4_adsorbate: Adsorbate) -> MixIsotherm:

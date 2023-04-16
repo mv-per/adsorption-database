@@ -1,6 +1,4 @@
 from pathlib import Path
-import pytest
-from pytest_mock import MockerFixture
 from adsorption_database.helpers import Helpers
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
@@ -71,4 +69,3 @@ def test_load_adsorbent() -> None:
         obj = serializer.load(f)
 
     assert_equal(mock_adsorbent, obj)
-
