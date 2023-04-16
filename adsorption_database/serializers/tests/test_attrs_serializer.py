@@ -4,7 +4,7 @@ from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from pytest_regressions.data_regression import DataRegressionFixture
-from adsorption_database.serializers.shared import assert_equal
+
 from adsorption_database.storage_provider import StorageProvider
 
 
@@ -24,9 +24,7 @@ def test_dump_adsorbate(
     data_regression.check({"tree": serialized_tree})
 
 
-def test_load_adsorbate(
-    co2_adsorbate: Adsorbate,
-) -> None:
+def test_load_adsorbate(co2_adsorbate: Adsorbate, helpers: Helpers) -> None:
     serializer = AttrOnlySerializer(Adsorbate)
 
     with StorageProvider().get_editable_file() as f:
@@ -35,7 +33,7 @@ def test_load_adsorbate(
     with StorageProvider().get_readable_file() as f:
         adsorbate_obj = serializer.load(f)
 
-    assert_equal(co2_adsorbate, adsorbate_obj)
+    helpers.assert_equal(co2_adsorbate, adsorbate_obj)
 
 
 def test_dump_adsorbent(
@@ -56,7 +54,7 @@ def test_dump_adsorbent(
     data_regression.check({"tree": serialized_tree})
 
 
-def test_load_adsorbent() -> None:
+def test_load_adsorbent(helpers: Helpers) -> None:
 
     mock_adsorbent = Adsorbent(AdsorbentType.ZEOLITE, "z01x", 100, 20)
 
@@ -68,4 +66,4 @@ def test_load_adsorbent() -> None:
     with StorageProvider().get_readable_file() as f:
         obj = serializer.load(f)
 
-    assert_equal(mock_adsorbent, obj)
+    helpers.assert_equal(mock_adsorbent, obj)

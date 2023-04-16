@@ -15,6 +15,12 @@ from pytest_mock import MockerFixture
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
 from adsorption_database.models.experiment import Experiment, ExperimentType
+from adsorption_database.serializers.shared import (
+    get_experiments_group,
+    get_isotherm_store_name,
+    get_mix_isotherm_group,
+    get_mono_isotherm_group,
+)
 from adsorption_database.storage_provider import StorageProvider
 from adsorption_database.models.isotherms import (
     MixIsotherm,
@@ -38,9 +44,9 @@ class TestAbstractHandler(AbstractHandler[MonoIsothermFileData, MixIsothermFileD
     ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         return super().get_mix_data(file_data)
 
+
 def test_get_isotherm_store_name(mono_isotherm: MonoIsotherm) -> None:
-    handler = TestAbstractHandler()
-    assert handler.get_isotherm_store_name(mono_isotherm) == "Mono Isotherm-Excess"
+    assert get_isotherm_store_name(mono_isotherm) == "Mono Isotherm-Excess"
 
 
 def test_register_adsorbate(
@@ -102,17 +108,17 @@ def test_get_groups() -> None:
         assert MIXTURE_ISOTHERMS not in list(f)
         assert EXPERIMENTS not in list(f)
 
-        handler.get_mono_isotherm_group(f)
-        handler.get_mix_isotherm_group(f)
-        handler.get_experiment_group(f)
+        get_mono_isotherm_group(f)
+        get_mix_isotherm_group(f)
+        get_experiments_group(f)
         assert MONO_ISOTHERMS in list(f)
         assert MIXTURE_ISOTHERMS in list(f)
         assert EXPERIMENTS in list(f)
 
         # test a second load
-        handler.get_mono_isotherm_group(f)
-        handler.get_mix_isotherm_group(f)
-        handler.get_experiment_group(f)
+        get_mono_isotherm_group(f)
+        get_mix_isotherm_group(f)
+        get_experiments_group(f)
 
 
 def test_register_mono_isotherm(
@@ -130,8 +136,8 @@ def test_register_mono_isotherm(
     with StorageProvider().get_editable_file() as f:
 
         experiment_name = "EXP-01"
-        experiments_groups = handler.get_experiment_group(f)
-        experiment_group = handler.get_group(experiment_name, experiments_groups)
+        experiments_groups = get_experiments_group(f)
+        experiment_group = experiments_groups.require_group(experiment_name)
 
         handler.register_mono_isotherm(mono_isotherm, experiment_group)
 
@@ -157,8 +163,8 @@ def test_register_mix_isotherm(
     with StorageProvider().get_editable_file() as f:
 
         experiment_name = "EXP-01"
-        experiments_groups = handler.get_experiment_group(f)
-        experiment_group = handler.get_group(experiment_name, experiments_groups)
+        experiments_groups = get_experiments_group(f)
+        experiment_group = experiments_groups.require_group(experiment_name)
 
         handler.register_mix_isotherm(mix_isotherm, experiment_group)
 

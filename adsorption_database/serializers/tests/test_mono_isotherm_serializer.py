@@ -9,7 +9,6 @@ from adsorption_database.models.isotherms import MonoIsotherm
 from adsorption_database.serializers.abstract_serializer import AbstractSerializer
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
-from adsorption_database.serializers.shared import assert_equal
 from adsorption_database.storage_provider import StorageProvider
 from pytest_lazyfixture import lazy_fixture
 from h5py import Group
@@ -61,6 +60,7 @@ def test_dump_mono_isotherm(
 def test_load_mono_isotherm(
     isotherm: MonoIsotherm,
     co2_adsorbate: Adsorbate,
+    helpers:Helpers
 ) -> None:
     serializer = MonoIsothermSerializer()
 
@@ -70,4 +70,4 @@ def test_load_mono_isotherm(
     with StorageProvider().get_readable_file() as f:
         obj = serializer.load(f[EXPERIMENTS]["A"][MONO_ISOTHERMS][isotherm.name])
 
-    assert_equal(isotherm, obj)
+    helpers.assert_equal(isotherm, obj)

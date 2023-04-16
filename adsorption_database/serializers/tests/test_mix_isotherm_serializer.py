@@ -7,7 +7,6 @@ from adsorption_database.models.isotherms import MixIsotherm
 from adsorption_database.serializers.abstract_serializer import AbstractSerializer
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.mix_isotherm_serializer import MixIsothermSerializer
-from adsorption_database.serializers.shared import assert_equal
 from adsorption_database.storage_provider import StorageProvider
 from h5py import Group
 
@@ -62,6 +61,7 @@ def test_load_mix_isotherm(
     mix_isotherm: MixIsotherm,
     co2_adsorbate: Adsorbate,
     ch4_adsorbate: Adsorbate,
+    helpers:Helpers
 ) -> None:
     serializer = MixIsothermSerializer()
 
@@ -77,4 +77,4 @@ def test_load_mix_isotherm(
     with StorageProvider().get_readable_file() as f:
         obj = serializer.load(f[EXPERIMENTS]["A"][MIXTURE_ISOTHERMS][mix_isotherm.name])
 
-    assert_equal(mix_isotherm, obj)
+    helpers.assert_equal(mix_isotherm, obj)

@@ -29,6 +29,12 @@ from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.experiment_serializer import ExperimentSerializer
 from adsorption_database.serializers.mix_isotherm_serializer import MixIsothermSerializer
 from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
+from adsorption_database.serializers.shared import (
+    get_experiments_group,
+    get_isotherm_store_name,
+    get_mix_isotherm_group,
+    get_mono_isotherm_group,
+)
 
 from adsorption_database.storage_provider import StorageProvider
 
@@ -40,88 +46,6 @@ _MixFileData = TypeVar("_MixFileData", bound=MixIsothermFileData)
 class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
     def __init__(self) -> None:
         self._storage_provider = StorageProvider()
-
-    def get_group(self, group_name: str, parent_group: Group) -> Group:
-        """
-        Get or create a group within a parent group in an HDF5 file.
-
-        This method searches for a group with the given `group_name` within the `parent_group`. If the group does
-        not exist, a new group with the given `group_name` is created within the `parent_group`.
-
-        Args:
-            group_name (str): The name of the group to get or create.
-            parent_group (h5py.Group): The parent group where the group will be searched for or created.
-
-        Returns:
-            h5py.Group: The group object with the given `group_name`.
-        """
-
-        group = parent_group.get(group_name)
-
-        if group is None:
-            group = parent_group.create_group(group_name)
-
-        return group
-
-    def get_mono_isotherm_group(self, experiment_group: Group) -> Group:
-        """
-        Get the group object for storing pure component isotherm data.
-
-        This method retrieves the HDF5 group object for storing pure component isotherm data within an experiment
-        group. The group object is retrieved based on a predefined group name.
-
-        Args:
-            experiment_group (Group): The experiment group object within which to get the pure component isotherm group.
-
-        Returns:
-            Group: The group object for storing pure component isotherm data.
-        """
-        return self.get_group(MONO_ISOTHERMS, experiment_group)
-
-    def get_experiment_group(self, file: File) -> Group:
-        """
-        Get the group object for storing pure component isotherm data.
-
-        This method retrieves the HDF5 group object for storing pure component isotherm data within an experiment
-        group. The group object is retrieved based on a predefined group name.
-
-        Args:
-            experiment_group (Group): The experiment group object within which to get the pure component isotherm group.
-
-        Returns:
-            Group: The group object for storing pure component isotherm data.
-        """
-        return self.get_group(EXPERIMENTS, file)
-
-    def get_mix_isotherm_group(self, experiment_group: Group) -> Group:
-        """
-        Get the group object for storing mixture isotherm data.
-
-        This method retrieves the HDF5 group object for storing mixture isotherm data within an experiment
-        group. The group object is retrieved based on a predefined group name.
-
-        Args:
-            experiment_group (Group): The experiment group object within which to get the mixture isotherm group.
-
-        Returns:
-            Group: The group object for storing mixture isotherm data.
-        """
-        return self.get_group(MIXTURE_ISOTHERMS, experiment_group)
-
-    def get_isotherm_store_name(self, isotherm: Union[MixIsotherm, MonoIsotherm]) -> str:
-        """
-        Get the store name for an isotherm object.
-
-        This method generates a unique store name for an isotherm object based on its name and type. The
-        generated store name is a string combining the isotherm's name and type with a hyphen separator.
-
-        Args:
-            isotherm (Union[MixIsotherm, MonoIsotherm]): The isotherm object for which to generate the store name.
-
-        Returns:
-            str: The generated store name.
-        """
-        return f"{isotherm.name}-{isotherm.isotherm_type.value}"
 
     def register_adsorbate(self, adsorbate: Adsorbate) -> None:
         """
@@ -138,8 +62,8 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
         """
 
         with self._storage_provider.get_editable_file() as file:
-            adsorbates_group = self.get_group(ADSORBATES, file)
-            group = self.get_group(adsorbate.name, adsorbates_group)
+            adsorbates_group = file.require_group(ADSORBATES)
+            group = adsorbates_group.require_group(adsorbate.name)
             AttrOnlySerializer(Adsorbate).dump(adsorbate, group)
 
     def register_adsorbent(self, adsorbent: Adsorbent) -> None:
@@ -157,8 +81,8 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
         """
 
         with self._storage_provider.get_editable_file() as file:
-            adsorbents_group = self.get_group(ADSORBENTS, file)
-            group = self.get_group(adsorbent.name, adsorbents_group)
+            adsorbents_group = file.require_group(ADSORBENTS)
+            group = adsorbents_group.require_group(adsorbent.name)
             AttrOnlySerializer(Adsorbent).dump(adsorbent, group)
 
     def register_experiment(self, experiment: Experiment):
@@ -177,21 +101,19 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
 
         with self._storage_provider.get_editable_file() as file:
 
-            experiments_group = self.get_experiment_group(file)
-            group = self.get_group(experiment.name, experiments_group)
+            experiments_group = get_experiments_group(file)
+            group = experiments_group.require_group(experiment.name)
 
-            ExperimentSerializer().dump(experiment, group)
-
-            # register datasets
+            # register isotherms
             isotherm_names = []
             for pure_isotherm in experiment.monocomponent_isotherms:
                 isotherm_names.append(self.register_mono_isotherm(pure_isotherm, group))
-            group.attrs.create("monocomponent_isotherms", SEPARATOR.join(isotherm_names))
 
             isotherm_names = []
             for mix_isotherm in experiment.mixture_isotherms:
                 isotherm_names.append(self.register_mix_isotherm(mix_isotherm, group))
-            group.attrs.create("mixture_isotherms", SEPARATOR.join(isotherm_names))
+
+            ExperimentSerializer().dump(experiment, group)
 
     def register_mono_isotherm(self, isotherm: MonoIsotherm, experiment_group: Group):
         """
@@ -209,10 +131,10 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             None
         """
 
-        pure_isotherms_group = self.get_mono_isotherm_group(experiment_group)
-        stored_isotherm_name = self.get_isotherm_store_name(isotherm)
+        pure_isotherms_group = get_mono_isotherm_group(experiment_group)
+        stored_isotherm_name = get_isotherm_store_name(isotherm)
 
-        isotherm_group = self.get_group(stored_isotherm_name, pure_isotherms_group)
+        isotherm_group = pure_isotherms_group.require_group(stored_isotherm_name)
 
         MonoIsothermSerializer().dump(isotherm, isotherm_group)
         return stored_isotherm_name
@@ -233,24 +155,14 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             None
         """
 
-        mixture_isotherms_group = self.get_mix_isotherm_group(experiment_group)
-        stored_isotherm_name = self.get_isotherm_store_name(isotherm)
+        mixture_isotherms_group = get_mix_isotherm_group(experiment_group)
+        stored_isotherm_name = get_isotherm_store_name(isotherm)
 
-        isotherm_group = self.get_group(stored_isotherm_name, mixture_isotherms_group)
+        isotherm_group = mixture_isotherms_group.require_group(stored_isotherm_name)
 
         MixIsothermSerializer().dump(isotherm, isotherm_group)
 
         return stored_isotherm_name
-
-    def gen_regression(self) -> None:
-        import json
-
-        path = self._storage_provider.get_file_path()
-        regression = Helpers().dump_storage_tree(path)
-
-        data = {"data": regression}
-        with open(path.parent.resolve() / "storage_regression.json", "w") as f:
-            json.dump(data, f)
 
     @abstractmethod
     def get_mono_data(

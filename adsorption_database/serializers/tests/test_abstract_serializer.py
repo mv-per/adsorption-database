@@ -50,7 +50,7 @@ def test_upsert_dataset_type_o_error() -> None:
     with StorageProvider().get_editable_file() as f:
         a = np.array([1, 2, 3, 4, 5, 6, 7], dtype="float64")
         b = np.array([4, 5, 6], dtype="float64")
-        dataset_values = np.array([a, b])
+        dataset_values = np.array([a, b], dtype=object)
 
         with pytest.raises(TypeError) as exc_info:
             serializer.upsert_dataset(f, dataset_name, dataset_values)

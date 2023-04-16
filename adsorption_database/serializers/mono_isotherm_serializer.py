@@ -13,15 +13,10 @@ from adsorption_database.serializers.shared import (
     get_adsorbate_group_route,
     get_attr_fields_from_infos,
     get_dataset_fields,
+    get_root_group,
 )
 
 
-def get_root_group(group: Group) -> Group:
-    "recursively searches for the parent group"
-    if group.name == "/":
-        return group
-    else:
-        return get_root_group(group.parent)
 
 
 class MonoIsothermSerializer(AbstractSerializer):
