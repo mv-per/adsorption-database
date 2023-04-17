@@ -11,7 +11,7 @@ from adsorption_database.models.isotherms import MixIsotherm, MonoIsotherm
 from adsorption_database.serializers.abstract_serializer import AbstractSerializer
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.mono_isotherm_serializer import get_root_group
-from adsorption_database.serializers.shared import (
+from adsorption_database.shared import (
     get_adsorbate_group_route,
     get_attr_fields_from_infos,
     get_dataset_fields,

@@ -15,7 +15,11 @@ from adsorption_database.serializers.abstract_serializer import AbstractSerializ
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.mix_isotherm_serializer import MixIsothermSerializer
 from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
-from adsorption_database.serializers.shared import get_adsorbent_group_route, get_attr_fields_from_infos, get_root_group
+from adsorption_database.shared import (
+    get_adsorbent_group_route,
+    get_attr_fields_from_infos,
+    get_root_group,
+)
 
 
 class ExperimentSerializer(AbstractSerializer):
@@ -58,7 +62,6 @@ class ExperimentSerializer(AbstractSerializer):
             adsorbent_group = root_group.get(group.attrs["adsorbent"])
             if adsorbent_group is not None:
                 _fields["adsorbent"] = AttrOnlySerializer(Adsorbent).load(adsorbent_group)
-            
 
         obj = self._model_class(**_fields)
 

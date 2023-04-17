@@ -15,7 +15,7 @@ from pytest_mock import MockerFixture
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
 from adsorption_database.models.experiment import Experiment, ExperimentType
-from adsorption_database.serializers.shared import (
+from adsorption_database.shared import (
     get_experiments_group,
     get_isotherm_store_name,
     get_mix_isotherm_group,

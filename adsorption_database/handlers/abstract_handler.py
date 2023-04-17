@@ -29,7 +29,7 @@ from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.experiment_serializer import ExperimentSerializer
 from adsorption_database.serializers.mix_isotherm_serializer import MixIsothermSerializer
 from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
-from adsorption_database.serializers.shared import (
+from adsorption_database.shared import (
     get_experiments_group,
     get_isotherm_store_name,
     get_mix_isotherm_group,

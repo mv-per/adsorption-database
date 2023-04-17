@@ -4,7 +4,7 @@ from attr import fields
 from h5py import Group
 
 from adsorption_database.serializers.abstract_serializer import AbstractSerializer
-from adsorption_database.serializers.shared import get_attr_fields_from_infos
+from adsorption_database.shared import get_attr_fields_from_infos
 
 
 class AttrOnlySerializer(AbstractSerializer):
