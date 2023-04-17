@@ -1,4 +1,5 @@
-from typing import Any, Dict, List
+# pragma: no cover
+from typing import Any, Dict, List, Union
 from attr import fields
 import numpy as np
 
@@ -18,6 +19,7 @@ from adsorption_database.serializers.mono_isotherm_serializer import MonoIsother
 from adsorption_database.shared import (
     get_adsorbent_group_route,
     get_attr_fields_from_infos,
+    get_isotherm_store_name,
     get_root_group,
 )
 
@@ -32,6 +34,9 @@ class ExperimentSerializer(AbstractSerializer):
             for field in fields(self._model_class)
             if field.type not in [Adsorbent, List[MonoIsotherm], List[MixIsotherm]]
         ]
+
+    def get_datasets(self):
+        return []
 
     def load(self, group: Group) -> Any:
 
@@ -74,8 +79,13 @@ class ExperimentSerializer(AbstractSerializer):
 
         self._register_attributes(attribute_names, obj, group)
 
-        def get_isotherm_pathnames(isotherms: List[Isotherm], main_path: str) -> List[str]:
-            return [str.encode(main_path + "/" + isotherm.name) for isotherm in isotherms]
+        def get_isotherm_pathnames(
+            isotherms: Union[List[MonoIsotherm], List[MixIsotherm]], main_path: str
+        ) -> List[bytes]:
+            return [
+                str.encode(main_path + "/" + get_isotherm_store_name(isotherm))
+                for isotherm in isotherms
+            ]
 
         moncomponent_isotherm_names = get_isotherm_pathnames(
             obj.monocomponent_isotherms, MONO_ISOTHERMS

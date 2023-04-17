@@ -1,7 +1,8 @@
+from typing import Any
 from attr import define
 import numpy as np
 import pytest
-
+from h5py import Group
 from adsorption_database.serializers.abstract_serializer import AbstractSerializer
 from adsorption_database.storage_provider import StorageProvider
 
@@ -11,9 +12,23 @@ class MockClass:
     name: str
 
 
+class Serializer(AbstractSerializer):
+    def dump(self, obj: Any, group: Group) -> None:
+        return super().dump(obj, group)
+
+    def load(self, group: Group) -> Any:
+        return super().load(group)
+
+    def get_attributes(self):
+        return super().get_attributes()
+
+    def get_datasets(self):
+        return super().get_datasets()
+
+
 def test_upsert_dataset() -> None:
 
-    serializer = AbstractSerializer(MockClass)
+    serializer = Serializer(MockClass)
 
     dataset_name = "my_dataset"
     with StorageProvider().get_editable_file() as f:
@@ -43,7 +58,7 @@ def test_upsert_dataset() -> None:
 
 def test_upsert_dataset_type_o_error() -> None:
 
-    serializer = AbstractSerializer(MockClass)
+    serializer = Serializer(MockClass)
 
     dataset_name = "my_dataset"
 

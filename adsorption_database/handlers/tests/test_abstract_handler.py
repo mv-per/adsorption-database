@@ -64,7 +64,7 @@ def test_register_adsorbate(
     data_regression.check({"tree": storage_tree})
 
 
-def test_register_experiment(
+def test_register_experiment_and_dump(
     co2_adsorbate: Adsorbate,
     ch4_adsorbate: Adsorbate,
     mix_isotherm: MixIsotherm,

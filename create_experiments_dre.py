@@ -5,10 +5,12 @@ from adsorption_database.handlers.text_file_hander import (
     MixIsothermTextFileData,
     MonoIsothermTextFileData,
 )
+from typing import List
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
 from adsorption_database.models.experiment import Experiment, ExperimentType
 from adsorption_database.models.isotherms import IsothermType
+
 
 if __name__ == "__main__":
 
@@ -55,28 +57,29 @@ if __name__ == "__main__":
     ]
 
     for mixture in mix:
-        adsorbates = mixture["adsorbates"]
-        compositions = mixture["x"]
+        adsorbates: List[Adsorbate] = mixture["adsorbates"]  # type:ignore[assignment]
+        compositions: List[int] = mixture["x"]  # type:ignore[assignment]
+        pos_n:List[int] = mixture["pos_n"] # type:ignore[assignment]
+        pos_y:List[int] = mixture["pos_y"] # type:ignore[assignment]
 
         if mixture["get"]:
             get_loadings = GetLoadingsFromAdsorbed(True, mixture["pos_x"], mixture["pos_nt"])
         else:
-            get_loadings = None
+            get_loadings = None  # type:ignore[assignment]
 
         for x in compositions:
 
-            names = [adsorbate.chemical_formula for adsorbate in adsorbates]
+            names: List[str] = [str(adsorbate.chemical_formula) for adsorbate in adsorbates]
 
             adsorbates_names = ("_").join(names)
             file_name = f"DRE_99_{adsorbates_names}_{x}"
-            print(file_name)
 
             mix_data = MixIsothermTextFileData(
                 f"{file_name}.txt",
                 adsorbates,
                 0,
-                mixture["pos_n"],
-                mixture["pos_y"],
+                pos_n,
+                pos_y,
                 load_missing_composition_from_equilibrium=True,
                 pressure_conversion_factor_to_Pa=1e6,
                 get_loadings_from_adsorbed=get_loadings,
@@ -89,9 +92,7 @@ if __name__ == "__main__":
 
     experiment = Experiment(
         name="Dre-norit-R1",
-        authors=[
-            "Dreisbach", "Staudt", "Keller"
-        ],
+        authors=["Dreisbach", "Staudt", "Keller"],
         adsorbent=adsorbent,
         experiment_type=ExperimentType.GRAVIMETRIC,
         monocomponent_isotherms=mono_isotherms,
@@ -102,5 +103,3 @@ if __name__ == "__main__":
     )
 
     handler.register_experiment(experiment)
-
-    handler.gen_regression()

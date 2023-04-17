@@ -89,13 +89,13 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         self, file: Any, file_data: MixIsothermFileData, pressures: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
 
-        compositions_list = []
+        compositions_list: List[npt.NDArray[np.float64]] = []
         for index in range(len(file_data.adsorbates)):
 
             try:
-                component_compositions = file[:, file_data.composition_cols[index]]
+                component_compositions = file[:, file_data.composition_cols[index]] # type: ignore[attr-defined]
             except IndexError:
-                if file_data.load_missing_composition_from_equilibrium:
+                if file_data.load_missing_composition_from_equilibrium:  # type: ignore[attr-defined]
                     component_compositions = []
 
                     for index in range(len(pressures)):
@@ -116,17 +116,17 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         adsorbed_x_list: List[npt.NDArray[np.float64]] = []
         loadings_list: List[npt.NDArray[np.float64]] = []
 
-        x_cols = file_data.get_loadings_from_adsorbed.pos_x
+        x_cols = file_data.get_loadings_from_adsorbed.pos_x  # type: ignore[attr-defined]
         nt = file[
             :,
-            file_data.get_loadings_from_adsorbed.pos_nt,
+            file_data.get_loadings_from_adsorbed.pos_nt,  # type: ignore[attr-defined]
         ]
         for index in range(len(file_data.adsorbates)):
 
             try:
                 component_compositions = file[:, x_cols[index]]
             except IndexError:
-                if file_data.get_loadings_from_adsorbed.get_missing_x_from_eq:
+                if file_data.get_loadings_from_adsorbed.get_missing_x_from_eq:  # type: ignore[attr-defined]
                     component_compositions = []
 
                     for index in range(len(pressures)):

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 from adsorption_database.handlers import TextFileHandler
 from adsorption_database.handlers.text_file_hander import (
     MixIsothermTextFileData,
@@ -45,12 +46,12 @@ if __name__ == "__main__":
     ]
 
     for mixture in mix:
-        adsorbates = mixture["adsorbates"]
-        compositions = mixture["x"]
+        adsorbates: List[Adsorbate] = mixture["adsorbates"]  # type:ignore[assignment]
+        compositions: List[int] = mixture["x"]  # type:ignore[assignment]
 
         for x in compositions:
 
-            names = [adsorbate.chemical_formula for adsorbate in adsorbates]
+            names: List[str] = [str(adsorbate.chemical_formula) for adsorbate in adsorbates]
 
             adsorbates_names = ("").join(names)
             file_name = f"SUDI_{adsorbates_names}_{x}"
@@ -90,5 +91,3 @@ if __name__ == "__main__":
     )
 
     handler.register_experiment(experiment)
-
-    handler.gen_regression()

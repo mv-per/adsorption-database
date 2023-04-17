@@ -14,6 +14,9 @@ class AttrOnlySerializer(AbstractSerializer):
     def get_attributes(self):
         return [(field.name, field.type) for field in fields(self._model_class)]
 
+    def get_datasets(self):
+        return []
+    
     def load(self, group: Group) -> Any:
 
         attribute_infos = self.get_attributes()

@@ -1,5 +1,5 @@
 [project]
-name = "adsorption-databas"
+name = "adsorption-database"
 version = "0.0.1"
 authors = [
   { name="Marcus Pereira", email="mav.pereira@outlook.com" },
@@ -16,3 +16,10 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/mv-per/adsorption-database"
 "Bug Tracker" = "https://github.com/mv-per/adsorption-database/issues"
+
+[tool.setuptools]
+py-modules=["adsorption_database"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
