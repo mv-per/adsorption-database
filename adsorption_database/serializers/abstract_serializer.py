@@ -70,25 +70,3 @@ class AbstractSerializer:
             del group[dataset_name]
 
         group.create_dataset(dataset_name, data=values)
-
-    def get_group(self, group_name: str, parent_group: Group) -> Group:
-        """
-        Get or create a group within a parent group in an HDF5 file.
-
-        This method searches for a group with the given `group_name` within the `parent_group`. If the group does
-        not exist, a new group with the given `group_name` is created within the `parent_group`.
-
-        Args:
-            group_name (str): The name of the group to get or create.
-            parent_group (h5py.Group): The parent group where the group will be searched for or created.
-
-        Returns:
-            h5py.Group: The group object with the given `group_name`.
-        """
-
-        group = parent_group.get(group_name)
-
-        if group is None:
-            group = parent_group.create_group(group_name)
-
-        return group

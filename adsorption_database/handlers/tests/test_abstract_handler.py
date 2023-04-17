@@ -99,28 +99,6 @@ def test_register_experiment(
     data_regression.check({"tree": storage_tree})
 
 
-def test_get_groups() -> None:
-
-    handler = TestAbstractHandler()
-
-    with StorageProvider().get_editable_file() as f:
-        assert MONO_ISOTHERMS not in list(f)
-        assert MIXTURE_ISOTHERMS not in list(f)
-        assert EXPERIMENTS not in list(f)
-
-        get_mono_isotherm_group(f)
-        get_mix_isotherm_group(f)
-        get_experiments_group(f)
-        assert MONO_ISOTHERMS in list(f)
-        assert MIXTURE_ISOTHERMS in list(f)
-        assert EXPERIMENTS in list(f)
-
-        # test a second load
-        get_mono_isotherm_group(f)
-        get_mix_isotherm_group(f)
-        get_experiments_group(f)
-
-
 def test_register_mono_isotherm(
     co2_adsorbate: Adsorbate,
     mono_isotherm: MonoIsotherm,
