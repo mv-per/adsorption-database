@@ -62,21 +62,19 @@ class Helpers:
                 val = getattr(obj2, f.name)
                 if val is None:
                     assert getattr(obj2, f.name) == getattr(obj1, f.name)
-                elif (
-                    isinstance(val, List)
-                    and not isinstance(val[0], str)
-                    and not isinstance(val[0], float)
-                ):
+                elif isinstance(val, List) and "__attrs_attrs__" in dir(
+                    val[0]
+                ):  # check if this is an attrs class
                     for index in range(len(val)):
                         Helpers.assert_equal(val[index], getattr(obj1, f.name)[index])
                 else:
                     _objs = getattr(obj2, f.name) == getattr(obj1, f.name)
-                    
+
                     try:
                         _arr = [__obj for __obj in _objs]
                         assert all(_arr)
                     except ValueError:
-                        assert  _objs.all()
+                        assert _objs.all()
                     except TypeError:
                         assert _objs
             else:
