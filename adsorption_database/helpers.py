@@ -16,6 +16,14 @@ def is_array(_type: Any) -> bool:
         return False
 
 
+def get_is_array(_type: Any) -> bool:
+    try:
+        _is_array = is_array(_type)
+    except AttributeError:
+        _is_array = False
+    return _is_array
+
+
 class Helpers:
     @staticmethod
     def dump_storage_tree(path: Path) -> List[str]:
@@ -48,26 +56,36 @@ class Helpers:
 
     @staticmethod
     def assert_equal(obj1: Any, obj2: Any) -> None:
+
         _fields = fields(type(obj1))
 
         for f in _fields:
-            val1 = getattr(obj1, f.name)
-            val2 = getattr(obj2, f.name)
 
-            if is_array(f.type):
-                if val2 is None:
+            _is_array = get_is_array(f.type)
+
+            val1 = getattr(obj2, f.name)
+            val2 = getattr(obj1, f.name)
+
+            if _is_array:
+
+                if val1 is None:
                     assert val1 == val2
-                elif isinstance(val2, List) and len(val2) > 0 and "__attrs_attrs__" in dir(val2[0]):
-                    for index in range(len(val2)):
+                elif (
+                    isinstance(val1, List)
+                    and len(val1) > 0
+                    and "__attrs_attrs__" in dir(val1[0])
+                ):  # check if this is an attrs class
+                    for index in range(len(val1)):
                         Helpers.assert_equal(val1[index], val2[index])
                 else:
-                    objs_equal = val1 == val2
+                    _objs = val1 == val2
 
                     try:
-                        assert all(objs_equal)
+                        _arr = [__obj for __obj in _objs]
+                        assert all(_arr)
                     except ValueError:
-                        assert objs_equal.all()
+                        assert _objs.all()
                     except TypeError:
-                        assert objs_equal
+                        assert _objs
             else:
                 assert val1 == val2
