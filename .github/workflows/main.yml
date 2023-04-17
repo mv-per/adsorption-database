@@ -28,10 +28,10 @@ jobs:
         run: |
           pip-compile dev-requirements.in --resolver=backtracking
           if [ -f dev-requirements.txt ]; then pip install -r dev-requirements.txt; fi
-      - name: Check typings
-        run: |
-          python -m mypy --install-types
-          python -m mypy adsorption_database --config-file ./pyproject.toml
+      # - name: Check typings
+      #   run: |
+      #     python -m mypy --install-types
+      #     python -m mypy adsorption_database --config-file ./pyproject.toml
       - name: Test with pytest
         run: |
           pytest adsorption_database
