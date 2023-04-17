@@ -19,7 +19,7 @@ def is_array(_type: Any) -> bool:
 
 class Helpers:
     @staticmethod
-    def dump_storage_tree(path: Path):
+    def dump_storage_tree(path: Path) -> List[str]:
         import subprocess
 
         return (
@@ -34,7 +34,7 @@ class Helpers:
         )
 
     @staticmethod
-    def dump_object(obj: Any) -> str:
+    def dump_object(obj: Any) -> Any:
         import jsonpickle
 
         import jsonpickle.ext.numpy as jsonpickle_numpy
@@ -63,10 +63,14 @@ class Helpers:
                 if val is None:
                     assert getattr(obj2, f.name) == getattr(obj1, f.name)
                 elif (
-                    isinstance(val, List) and len(val) > 1 and "__attrs_attrs__" in dir(val[0])
+                    isinstance(val, List)
+                    and len(val) > 0
+                    and "__attrs_attrs__" in dir(val[0])
                 ):  # check if this is an attrs class
                     for index in range(len(val)):
-                        Helpers.assert_equal(val[index], getattr(obj1, f.name)[index])
+                        Helpers.assert_equal(
+                            val[index], getattr(obj1, f.name)[index]
+                        )
                 else:
                     _objs = getattr(obj2, f.name) == getattr(obj1, f.name)
 
@@ -76,7 +80,6 @@ class Helpers:
                     except ValueError:
                         assert _objs.all()
                     except TypeError:
-                        print(_objs)
                         assert _objs
             else:
                 assert getattr(obj2, f.name) == getattr(obj1, f.name)

@@ -1,34 +1,33 @@
 from abc import abstractmethod
-from attrs import fields
-from typing import Generic, Optional, Tuple, TypeVar, Union, List, Any
-import enum
-from h5py import File, Group, SoftLink
+from typing import Generic, Optional, Tuple, TypeVar
+from h5py import Group
 import numpy as np
 import numpy.typing as npt
 from adsorption_database.defaults import (
     ADSORBATES,
     ADSORBENTS,
-    EXPERIMENTS,
-    MIXTURE_ISOTHERMS,
-    MONO_ISOTHERMS,
-    SEPARATOR,
 )
-from adsorption_database.helpers import Helpers
 
-
-from adsorption_database.models import (
+from adsorption_database.models.adsorbent import Adsorbent
+from adsorption_database.models.experiment import Experiment
+from adsorption_database.models.adsorbate import Adsorbent, Adsorbate
+from adsorption_database.models.isotherms import (
+    MixIsothermFileData,
+    MonoIsothermFileData,
     MixIsotherm,
     MonoIsotherm,
     IsothermType,
-    Adsorbate,
-    Experiment,
 )
-from adsorption_database.models.adsorbent import Adsorbent
-from adsorption_database.models.isotherms import MixIsothermFileData, MonoIsothermFileData
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
-from adsorption_database.serializers.experiment_serializer import ExperimentSerializer
-from adsorption_database.serializers.mix_isotherm_serializer import MixIsothermSerializer
-from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
+from adsorption_database.serializers.experiment_serializer import (
+    ExperimentSerializer,
+)
+from adsorption_database.serializers.mix_isotherm_serializer import (
+    MixIsothermSerializer,
+)
+from adsorption_database.serializers.mono_isotherm_serializer import (
+    MonoIsothermSerializer,
+)
 from adsorption_database.shared import (
     get_experiments_group,
     get_isotherm_store_name,
@@ -109,15 +108,21 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             # register isotherms
             isotherm_names = []
             for pure_isotherm in experiment.monocomponent_isotherms:
-                isotherm_names.append(self.register_mono_isotherm(pure_isotherm, group))
+                isotherm_names.append(
+                    self.register_mono_isotherm(pure_isotherm, group)
+                )
 
             isotherm_names = []
             for mix_isotherm in experiment.mixture_isotherms:
-                isotherm_names.append(self.register_mix_isotherm(mix_isotherm, group))
+                isotherm_names.append(
+                    self.register_mix_isotherm(mix_isotherm, group)
+                )
 
             ExperimentSerializer().dump(experiment, group)
 
-    def register_mono_isotherm(self, isotherm: MonoIsotherm, experiment_group: Group):
+    def register_mono_isotherm(
+        self, isotherm: MonoIsotherm, experiment_group: Group
+    ):
         """
         Register a monocomponent isotherm and associated data in the HDF5 file.
 
@@ -138,12 +143,16 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
 
         self.register_adsorbate(isotherm.adsorbate)
 
-        isotherm_group = pure_isotherms_group.require_group(stored_isotherm_name)
+        isotherm_group = pure_isotherms_group.require_group(
+            stored_isotherm_name
+        )
 
         MonoIsothermSerializer().dump(isotherm, isotherm_group)
         return stored_isotherm_name
 
-    def register_mix_isotherm(self, isotherm: MixIsotherm, experiment_group: Group):
+    def register_mix_isotherm(
+        self, isotherm: MixIsotherm, experiment_group: Group
+    ):
         """
         Register a multicomponent isotherm and associated data in the HDF5 file.
 
@@ -165,7 +174,9 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
         for adsorbate in isotherm.adsorbates:
             self.register_adsorbate(adsorbate)
 
-        isotherm_group = mixture_isotherms_group.require_group(stored_isotherm_name)
+        isotherm_group = mixture_isotherms_group.require_group(
+            stored_isotherm_name
+        )
 
         MixIsothermSerializer().dump(isotherm, isotherm_group)
 
@@ -235,7 +246,11 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
     def get_mix_data(
         self,
         file_data: _MixFileData,
-    ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    ) -> Tuple[
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+    ]:
         """
         Get mixed-component isotherm data from file data.
 

@@ -26,11 +26,11 @@ def get_root_group(group: Group) -> Group:
         return get_root_group(group.parent)
 
 
-def get_adsorbate_group_route(adsorbate_name: str):
+def get_adsorbate_group_route(adsorbate_name: str) -> str:
     return f"/{ADSORBATES}/{adsorbate_name}"
 
 
-def get_adsorbent_group_route(name: str):
+def get_adsorbent_group_route(name: str) -> str:
     return f"/{ADSORBENTS}/{name}"
 
 
@@ -41,7 +41,9 @@ def get_valid_type(args: List[Type]) -> Type:
 
 
 def get_attr_fields_from_infos(
-    fields: Dict[str, Any], attribute_infos: List[Tuple[str, Type]], group: Group
+    fields: Dict[str, Any],
+    attribute_infos: List[Tuple[str, Type]],
+    group: Group,
 ) -> None:
     for (attribute, _type) in attribute_infos:
         val = group.attrs.get(attribute)
@@ -52,15 +54,17 @@ def get_attr_fields_from_infos(
                 # some attrs are optional, this gets its valid type
                 valid_type = get_valid_type(_type.__args__)
 
-                if 'List' in str(valid_type):
+                if "List" in str(valid_type):
                     valid_type = list
-                
+
                 val = valid_type(val)
 
         fields[attribute] = val
 
 
-def get_dataset_fields(fields: Dict[str, Any], dataset_names: List[str], group: Group) -> None:
+def get_dataset_fields(
+    fields: Dict[str, Any], dataset_names: List[str], group: Group
+) -> None:
 
     for dataset_name in dataset_names:
         val = group.get(dataset_name)

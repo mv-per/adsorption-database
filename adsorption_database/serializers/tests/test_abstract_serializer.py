@@ -3,7 +3,9 @@ from attr import define
 import numpy as np
 import pytest
 from h5py import Group
-from adsorption_database.serializers.abstract_serializer import AbstractSerializer
+from adsorption_database.serializers.abstract_serializer import (
+    AbstractSerializer,
+)
 from adsorption_database.storage_provider import StorageProvider
 
 
@@ -70,4 +72,7 @@ def test_upsert_dataset_type_o_error() -> None:
         with pytest.raises(TypeError) as exc_info:
             serializer.upsert_dataset(f, dataset_name, dataset_values)
 
-        assert str(exc_info.value) == "Object dtype dtype('O') has no native HDF5 equivalent"
+        assert (
+            str(exc_info.value)
+            == "Object dtype dtype('O') has no native HDF5 equivalent"
+        )

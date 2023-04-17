@@ -1,21 +1,32 @@
 from pathlib import Path
 
 import pytest
-from adsorption_database.defaults import ADSORBATES, EXPERIMENTS, MONO_ISOTHERMS
+from adsorption_database.defaults import (
+    ADSORBATES,
+    EXPERIMENTS,
+    MONO_ISOTHERMS,
+)
 from adsorption_database.helpers import Helpers
 from pytest_regressions.data_regression import DataRegressionFixture
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.isotherms import MonoIsotherm
-from adsorption_database.serializers.abstract_serializer import AbstractSerializer
+from adsorption_database.serializers.abstract_serializer import (
+    AbstractSerializer,
+)
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
-from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
+from adsorption_database.serializers.mono_isotherm_serializer import (
+    MonoIsothermSerializer,
+)
 from adsorption_database.storage_provider import StorageProvider
 from pytest_lazyfixture import lazy_fixture
 from h5py import Group
 
 
 def setup_file(
-    serializer: AbstractSerializer, co2_adsorbate: Adsorbate, isotherm: MonoIsotherm, f: Group
+    serializer: AbstractSerializer,
+    co2_adsorbate: Adsorbate,
+    isotherm: MonoIsotherm,
+    f: Group,
 ) -> None:
     adsorbates = f.create_group(ADSORBATES)
     co2_group = adsorbates.create_group(co2_adsorbate.name)
@@ -30,7 +41,10 @@ def setup_file(
 
 @pytest.mark.parametrize(
     "isotherm",
-    [lazy_fixture("mono_isotherm"), lazy_fixture("mono_isotherm_with_heats_of_adsorption")],
+    [
+        lazy_fixture("mono_isotherm"),
+        lazy_fixture("mono_isotherm_with_heats_of_adsorption"),
+    ],
 )
 def test_dump_mono_isotherm(
     isotherm: MonoIsotherm,
@@ -58,9 +72,7 @@ def test_dump_mono_isotherm(
     ],
 )
 def test_load_mono_isotherm(
-    isotherm: MonoIsotherm,
-    co2_adsorbate: Adsorbate,
-    helpers:Helpers
+    isotherm: MonoIsotherm, co2_adsorbate: Adsorbate, helpers: Helpers
 ) -> None:
     serializer = MonoIsothermSerializer()
 
@@ -68,6 +80,8 @@ def test_load_mono_isotherm(
         setup_file(serializer, co2_adsorbate, isotherm, f)
 
     with StorageProvider().get_readable_file() as f:
-        obj = serializer.load(f[EXPERIMENTS]["A"][MONO_ISOTHERMS][isotherm.name])
+        obj = serializer.load(
+            f[EXPERIMENTS]["A"][MONO_ISOTHERMS][isotherm.name]
+        )
 
     helpers.assert_equal(isotherm, obj)

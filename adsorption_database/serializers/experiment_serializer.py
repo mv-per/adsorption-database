@@ -11,11 +11,21 @@ from h5py import Group
 from adsorption_database.models.adsorbent import Adsorbent
 from adsorption_database.models.experiment import Experiment
 
-from adsorption_database.models.isotherms import Isotherm, MixIsotherm, MonoIsotherm
-from adsorption_database.serializers.abstract_serializer import AbstractSerializer
+from adsorption_database.models.isotherms import (
+    Isotherm,
+    MixIsotherm,
+    MonoIsotherm,
+)
+from adsorption_database.serializers.abstract_serializer import (
+    AbstractSerializer,
+)
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
-from adsorption_database.serializers.mix_isotherm_serializer import MixIsothermSerializer
-from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
+from adsorption_database.serializers.mix_isotherm_serializer import (
+    MixIsothermSerializer,
+)
+from adsorption_database.serializers.mono_isotherm_serializer import (
+    MonoIsothermSerializer,
+)
 from adsorption_database.shared import (
     get_adsorbent_group_route,
     get_attr_fields_from_infos,
@@ -32,7 +42,8 @@ class ExperimentSerializer(AbstractSerializer):
         return [
             (field.name, field.type)
             for field in fields(self._model_class)
-            if field.type not in [Adsorbent, List[MonoIsotherm], List[MixIsotherm]]
+            if field.type
+            not in [Adsorbent, List[MonoIsotherm], List[MixIsotherm]]
         ]
 
     def get_datasets(self):
@@ -44,29 +55,31 @@ class ExperimentSerializer(AbstractSerializer):
         attributes = self.get_attributes()
         get_attr_fields_from_infos(_fields, attributes, group)
 
-        if "monocomponent_isotherms" in list(group.attrs):
+        if MONO_ISOTHERMS in list(group):
             _fields["monocomponent_isotherms"] = []
-            for mono_isotherm in group.attrs["monocomponent_isotherms"]:
-                isotherm_group = group.get(mono_isotherm)
+            for isotherm_name in list(group[MONO_ISOTHERMS]):
+                isotherm_group = group[MONO_ISOTHERMS].get(isotherm_name)
                 if isotherm_group is None:
                     continue
                 mono_isotherm = MonoIsothermSerializer().load(isotherm_group)
                 _fields["monocomponent_isotherms"].append(mono_isotherm)
 
-        if "mixture_isotherms" in list(group.attrs):
+        if MIXTURE_ISOTHERMS in list(group):
             _fields["mixture_isotherms"] = []
-            for mono_isotherm in group.attrs["mixture_isotherms"]:
-                isotherm_group = group.get(mono_isotherm)
+            for isotherm_name in list(group[MIXTURE_ISOTHERMS]):
+                isotherm_group = group[MIXTURE_ISOTHERMS].get(isotherm_name)
                 if isotherm_group is None:
                     continue
-                mono_isotherm = MixIsothermSerializer().load(isotherm_group)
-                _fields["mixture_isotherms"].append(mono_isotherm)
+                mix_isotherm = MixIsothermSerializer().load(isotherm_group)
+                _fields["mixture_isotherms"].append(mix_isotherm)
 
         if "adsorbent" in list(group.attrs):
             root_group = get_root_group(group)
             adsorbent_group = root_group.get(group.attrs["adsorbent"])
             if adsorbent_group is not None:
-                _fields["adsorbent"] = AttrOnlySerializer(Adsorbent).load(adsorbent_group)
+                _fields["adsorbent"] = AttrOnlySerializer(Adsorbent).load(
+                    adsorbent_group
+                )
 
         obj = self._model_class(**_fields)
 
@@ -78,22 +91,6 @@ class ExperimentSerializer(AbstractSerializer):
         attribute_names = [attr[0] for attr in attributes]
 
         self._register_attributes(attribute_names, obj, group)
-
-        def get_isotherm_pathnames(
-            isotherms: Union[List[MonoIsotherm], List[MixIsotherm]], main_path: str
-        ) -> List[bytes]:
-            return [
-                str.encode(main_path + "/" + get_isotherm_store_name(isotherm))
-                for isotherm in isotherms
-            ]
-
-        moncomponent_isotherm_names = get_isotherm_pathnames(
-            obj.monocomponent_isotherms, MONO_ISOTHERMS
-        )
-        mixture_isotherms_names = get_isotherm_pathnames(obj.mixture_isotherms, MIXTURE_ISOTHERMS)
-
-        group.attrs["monocomponent_isotherms"] = np.array(moncomponent_isotherm_names)
-        group.attrs["mixture_isotherms"] = np.array(mixture_isotherms_names)
 
         route = get_adsorbent_group_route(obj.adsorbent.name)
         group.attrs["adsorbent"] = route

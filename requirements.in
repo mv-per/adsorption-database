@@ -1,0 +1,4 @@
+# requirements.in
+attrs
+numpy
+h5py

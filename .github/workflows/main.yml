@@ -1,0 +1,37 @@
+name: Adsorption Database
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools pip-tools
+          pip-compile requirements.in
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: build
+        run: |
+        python -m pip install -e . 
+    - name: Install dev dependencies
+        run: |
+          pip-compile dev-requirements.in --resolver=backtracking
+          if [ -f dev-requirements.txt ]; then pip install -r dev-requirements.txt; fi
+      - name: Check typings
+        run: |
+        python -m mypy --install-types
+        python -m mypy adsorption_database --config-file ./pyproject.toml
+      - name: Test with pytest
+        run: |
+          pytest adsorption_database

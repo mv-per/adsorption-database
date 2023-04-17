@@ -183,7 +183,9 @@ def test_mix_file_handler_raise_index_error(datadir: Path) -> None:
         handler.get_mix_data(mixture_data)
 
 
-def test_create_mono_isotherm(datadir: Path, data_regression, helpers: Helpers) -> None:
+def test_create_mono_isotherm(
+    datadir: Path, data_regression, helpers: Helpers
+) -> None:
 
     handler = TextFileHandler(datadir)
 
@@ -226,9 +228,9 @@ def test_create_mix_isotherm(
         pressure_conversion_factor_to_Pa=1e6,
     )
 
-    mono_isotherm = handler.create_mix_isotherm(
+    isotherm = handler.create_mix_isotherm(
         "isotherm 1", 300, IsothermType.ABSOLUTE, mixture_data
     )
 
-    serialized = helpers.dump_object(mono_isotherm)
+    serialized = helpers.dump_object(isotherm)
     data_regression.check(serialized)

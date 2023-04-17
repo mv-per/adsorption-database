@@ -8,6 +8,8 @@ from adsorption_database.storage_provider import StorageProvider
 def setup_storage(datadir: Path, mocker: MockerFixture) -> Path:
     storage_path = Path(datadir / "test_storage.hdf5")
 
-    mocker.patch.object(StorageProvider, "get_file_path", return_value=storage_path)
+    mocker.patch.object(
+        StorageProvider, "get_file_path", return_value=storage_path
+    )
 
     return storage_path

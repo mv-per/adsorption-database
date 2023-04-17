@@ -23,3 +23,17 @@ py-modules=["adsorption_database"]
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+python_version = "3.7"
+strict = true
+show_error_codes = true
+disallow_untyped_defs = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+warn_unreachable = true
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.black]
+line-length = 79
+target-version = ['py37']

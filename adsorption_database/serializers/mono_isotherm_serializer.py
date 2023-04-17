@@ -7,7 +7,9 @@ from h5py import Group, SoftLink
 import numpy.typing as npt
 
 from adsorption_database.models.isotherms import MonoIsotherm
-from adsorption_database.serializers.abstract_serializer import AbstractSerializer
+from adsorption_database.serializers.abstract_serializer import (
+    AbstractSerializer,
+)
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.shared import (
     get_adsorbate_group_route,
@@ -15,8 +17,6 @@ from adsorption_database.shared import (
     get_dataset_fields,
     get_root_group,
 )
-
-
 
 
 class MonoIsothermSerializer(AbstractSerializer):
@@ -28,14 +28,19 @@ class MonoIsothermSerializer(AbstractSerializer):
             (field.name, field.type)
             for field in fields(self._model_class)
             if field.type
-            not in [npt.NDArray[np.float64], Adsorbate, Optional[npt.NDArray[np.float64]]]
+            not in [
+                npt.NDArray[np.float64],
+                Adsorbate,
+                Optional[npt.NDArray[np.float64]],
+            ]
         ]
 
     def get_datasets(self):
         return [
             field.name
             for field in fields(self._model_class)
-            if field.type in [npt.NDArray[np.float64], Optional[npt.NDArray[np.float64]]]
+            if field.type
+            in [npt.NDArray[np.float64], Optional[npt.NDArray[np.float64]]]
         ]
 
     def load(self, group: Group) -> Any:
@@ -51,7 +56,9 @@ class MonoIsothermSerializer(AbstractSerializer):
         if "adsorbate" in list(group.attrs):
             root_group = get_root_group(group)
             adsorbate_group = root_group.get(group.attrs["adsorbate"])
-            _fields["adsorbate"] = AttrOnlySerializer(Adsorbate).load(adsorbate_group)
+            _fields["adsorbate"] = AttrOnlySerializer(Adsorbate).load(
+                adsorbate_group
+            )
 
         obj = self._model_class(**_fields)
 

@@ -1,0 +1,13 @@
+# dev-requirements.in
+-c requirements.txt
+pytest
+mypy
+black
+flake8
+pytest-datadir
+pytest-regressions
+pytest-mock
+pytest-cov
+pytest-lazy-fixture
+invoke
+jsonpickle

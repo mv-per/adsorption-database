@@ -33,7 +33,9 @@ from pytest_regressions.data_regression import DataRegressionFixture
 from adsorption_database.helpers import Helpers
 
 
-class TestAbstractHandler(AbstractHandler[MonoIsothermFileData, MixIsothermFileData]):
+class TestAbstractHandler(
+    AbstractHandler[MonoIsothermFileData, MixIsothermFileData]
+):
     def get_mono_data(
         self, file_data: MonoIsothermFileData
     ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
@@ -41,7 +43,11 @@ class TestAbstractHandler(AbstractHandler[MonoIsothermFileData, MixIsothermFileD
 
     def get_mix_data(
         self, file_data: MixIsothermFileData
-    ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    ) -> Tuple[
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+    ]:
         return super().get_mix_data(file_data)
 
 

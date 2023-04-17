@@ -63,7 +63,9 @@ def test_get_adsobent() -> None:
     assert adsorbent.type is not None
 
 
-def test_get_storage_regression(helpers: Helpers, data_regression: DataRegressionFixture) -> None:
+def test_get_storage_regression(
+    helpers: Helpers, data_regression: DataRegressionFixture
+) -> None:
 
     from adsorption_database.storage_provider import StorageProvider
 

@@ -14,11 +14,19 @@ from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
 from adsorption_database.models.experiment import Experiment, ExperimentType
 from adsorption_database.models.isotherms import MixIsotherm, MonoIsotherm
-from adsorption_database.serializers.abstract_serializer import AbstractSerializer
+from adsorption_database.serializers.abstract_serializer import (
+    AbstractSerializer,
+)
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
-from adsorption_database.serializers.experiment_serializer import ExperimentSerializer
-from adsorption_database.serializers.mix_isotherm_serializer import MixIsothermSerializer
-from adsorption_database.serializers.mono_isotherm_serializer import MonoIsothermSerializer
+from adsorption_database.serializers.experiment_serializer import (
+    ExperimentSerializer,
+)
+from adsorption_database.serializers.mix_isotherm_serializer import (
+    MixIsothermSerializer,
+)
+from adsorption_database.serializers.mono_isotherm_serializer import (
+    MonoIsothermSerializer,
+)
 from adsorption_database.storage_provider import StorageProvider
 
 
@@ -58,12 +66,14 @@ def setup_test_storage(
 
         group = experiments_group.create_group(experiment.name)
 
-        mono_isos = group.create_group(MONO_ISOTHERMS)
-        mono_iso = mono_isos.create_group(mono_isotherm.name)
-        mix_isos = group.create_group(MIXTURE_ISOTHERMS)
-        mix_iso = mix_isos.create_group(mix_isotherm.name)
-
+        mono_iso = group.create_group(
+            MONO_ISOTHERMS + "/" + mono_isotherm.name
+        )
         MonoIsothermSerializer().dump(mono_isotherm, mono_iso)
+
+        mix_iso = group.create_group(
+            MIXTURE_ISOTHERMS + "/" + mix_isotherm.name
+        )
         MixIsothermSerializer().dump(mix_isotherm, mix_iso)
 
         serializer.dump(experiment, group)
@@ -83,7 +93,9 @@ def test_dump_experiment(
     data_regression.check({"tree": serialized_tree})
 
 
-def test_load_experiment(helpers: Helpers, setup_test_storage: Experiment) -> None:
+def test_load_experiment(
+    helpers: Helpers, setup_test_storage: Experiment
+) -> None:
     serializer = ExperimentSerializer()
 
     with StorageProvider().get_readable_file() as f:

@@ -1,8 +1,21 @@
 name: adsorption_database
 channels:
   - defaults
-  - conda-forge
 dependencies:
-  - python=3.7.16
-  - attrs=22.1
-  - h5py=3.7
+  - python=3.7
+  - attrs
+  - numpy
+  - h5py
+  - pytest
+  - mypy
+  - black
+  - flake8
+  - pytest-datadir
+  - pytest-regressions
+  - nptyping
+  - pytest-mock
+  - pytest-cov
+  - invoke
+  - jsonpickle
+  - pytest-lazy-fixture
+prefix: /home/mvper/miniconda3/envs/adsorption_database

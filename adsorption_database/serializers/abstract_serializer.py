@@ -1,21 +1,22 @@
 import enum
-from typing import Any, List
+from typing import Any, List, Tuple
 from h5py import Group
 from abc import abstractmethod
 import numpy.typing as npt
 from abc import abstractmethod
+import numpy as np
 
 
 class AbstractSerializer:
-    def __init__(self, model_class) -> None:
+    def __init__(self, model_class: Any) -> None:
         self._model_class = model_class
 
     @abstractmethod
-    def get_attributes(self):
+    def get_attributes(self) -> List[Tuple[str, Any]]:
         raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
-    def get_datasets(self):
+    def get_datasets(self) -> List[str]:
         raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
@@ -26,7 +27,9 @@ class AbstractSerializer:
     def dump(self, obj: Any, group: Group) -> None:
         raise NotImplementedError()  # pragma: no cover
 
-    def _register_attributes(self, fields: List[str], object: Any, group: Group) -> None:
+    def _register_attributes(
+        self, fields: List[str], object: Any, group: Group
+    ) -> None:
 
         for field in fields:
             val = getattr(object, field)
@@ -36,7 +39,9 @@ class AbstractSerializer:
                 val = val.value
             group.attrs.create(field, val)
 
-    def _register_datasets(self, dataset_names: List[str], object: Any, group: Group) -> None:
+    def _register_datasets(
+        self, dataset_names: List[str], object: Any, group: Group
+    ) -> None:
 
         for dataset_name in dataset_names:
             val = getattr(object, dataset_name)
@@ -44,7 +49,9 @@ class AbstractSerializer:
                 continue
             self.upsert_dataset(group, dataset_name, val)
 
-    def upsert_dataset(self, group: Group, dataset_name: str, values: npt.NDArray) -> None:
+    def upsert_dataset(
+        self, group: Group, dataset_name: str, values: npt.NDArray[np.float64]
+    ) -> None:
         """
         Upsert a dataset in a HDF5 group.
 

@@ -1,16 +1,20 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from attr import fields
 
 import numpy as np
-from adsorption_database.defaults import ADSORBATES
+from adsorption_database.defaults import MIXTURE_ISOTHERMS
 from adsorption_database.models.adsorbate import Adsorbate
-from h5py import Group, SoftLink
+from h5py import Group
 import numpy.typing as npt
 
 from adsorption_database.models.isotherms import MixIsotherm, MonoIsotherm
-from adsorption_database.serializers.abstract_serializer import AbstractSerializer
+from adsorption_database.serializers.abstract_serializer import (
+    AbstractSerializer,
+)
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
-from adsorption_database.serializers.mono_isotherm_serializer import get_root_group
+from adsorption_database.serializers.mono_isotherm_serializer import (
+    get_root_group,
+)
 from adsorption_database.shared import (
     get_adsorbate_group_route,
     get_attr_fields_from_infos,
@@ -52,7 +56,9 @@ class MixIsothermSerializer(AbstractSerializer):
             adsorbate_serializer = AttrOnlySerializer(Adsorbate)
             for adsorbate in group.attrs["adsorbates"]:
                 adsorbate_group = root_group.get(adsorbate)
-                _fields["adsorbates"].append(adsorbate_serializer.load(adsorbate_group))
+                _fields["adsorbates"].append(
+                    adsorbate_serializer.load(adsorbate_group)
+                )
 
         obj = self._model_class(**_fields)
 
@@ -73,5 +79,8 @@ class MixIsothermSerializer(AbstractSerializer):
         # full path to the adsorbate. In doing this, on de-serializing the stored object, the code must
         # check whether the adsorbate still exists in the storage
         group.attrs["adsorbates"] = np.array(
-            [str.encode(get_adsorbate_group_route(adsorbate.name)) for adsorbate in obj.adsorbates]
+            [
+                str.encode(get_adsorbate_group_route(adsorbate.name))
+                for adsorbate in obj.adsorbates
+            ]
         )

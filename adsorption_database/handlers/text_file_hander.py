@@ -2,7 +2,10 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from attr import define
-from adsorption_database.models import MonoIsothermFileData, MixIsothermFileData
+from adsorption_database.models import (
+    MonoIsothermFileData,
+    MixIsothermFileData,
+)
 from adsorption_database.handlers.abstract_handler import AbstractHandler
 import numpy as np
 
@@ -34,7 +37,9 @@ class MixIsothermTextFileData(MixIsothermFileData):
     get_loadings_from_adsorbed: Optional[GetLoadingsFromAdsorbed] = None
 
 
-class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextFileData]):
+class TextFileHandler(
+    AbstractHandler[MonoIsothermTextFileData, MixIsothermTextFileData]
+):
     """
     A class for handling text files containing isotherm data.
 
@@ -76,24 +81,32 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         loadings = file[:, file_data.loadings_col]
 
         if file_data.pressure_conversion_factor_to_Pa is not None:
-            pressures = pressures[:] * file_data.pressure_conversion_factor_to_Pa
+            pressures = (
+                pressures[:] * file_data.pressure_conversion_factor_to_Pa
+            )
 
         if file_data.loadings_conversion_factor_to_mol_per_kg is not None:
-            loadings = loadings[:] * file_data.loadings_conversion_factor_to_mol_per_kg
+            loadings = (
+                loadings[:]
+                * file_data.loadings_conversion_factor_to_mol_per_kg
+            )
 
         assert pressures.shape == loadings.shape
 
         return pressures, loadings
 
     def get_bulk_composition(
-        self, file: Any, file_data: MixIsothermFileData, pressures: npt.NDArray[np.float64]
+        self,
+        file: Any,
+        file_data: MixIsothermFileData,
+        pressures: npt.NDArray[np.float64],
     ) -> npt.NDArray[np.float64]:
 
         compositions_list: List[npt.NDArray[np.float64]] = []
         for index in range(len(file_data.adsorbates)):
 
             try:
-                component_compositions = file[:, file_data.composition_cols[index]] # type: ignore[attr-defined]
+                component_compositions = file[:, file_data.composition_cols[index]]  # type: ignore[attr-defined]
             except IndexError:
                 if file_data.load_missing_composition_from_equilibrium:  # type: ignore[attr-defined]
                     component_compositions = []
@@ -107,10 +120,13 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
                     raise
             compositions_list.append(np.array(component_compositions))
 
-        return compositions_list
+        return np.array(compositions_list)
 
     def get_loadings_from_adsorbed_compositions(
-        self, file: Any, file_data: MixIsothermFileData, pressures: npt.NDArray[np.float64]
+        self,
+        file: Any,
+        file_data: MixIsothermFileData,
+        pressures: npt.NDArray[np.float64],
     ) -> npt.NDArray[np.float64]:
 
         adsorbed_x_list: List[npt.NDArray[np.float64]] = []
@@ -139,19 +155,24 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
             adsorbed_x_list.append(np.array(component_compositions))
             loadings_list.append(np.array(component_compositions * nt))
 
-        return loadings_list
+        return np.array(loadings_list)
 
     def get_loading_list(
-        self, file: Any, file_data: MixIsothermTextFileData, pressures: npt.NDArray[np.float64]
+        self,
+        file: Any,
+        file_data: MixIsothermTextFileData,
+        pressures: npt.NDArray[np.float64],
     ) -> npt.NDArray[np.float64]:
 
         if file_data.get_loadings_from_adsorbed is not None:
-            return self.get_loadings_from_adsorbed_compositions(file, file_data, pressures)
+            return self.get_loadings_from_adsorbed_compositions(
+                file, file_data, pressures
+            )
 
         loadings_list = []
         for index in range(len(file_data.adsorbates)):
             loadings_list.append(file[:, file_data.loadings_cols[index]])
-        return loadings_list
+        return np.array(loadings_list)
 
     def check_conversion_factors(
         self,
@@ -165,14 +186,19 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         if file_data.loadings_conversion_factor_to_mol_per_kg is not None:
             for i, component_loadings in enumerate(loadings_list):
                 loadings_list[i] = (
-                    component_loadings * file_data.loadings_conversion_factor_to_mol_per_kg
+                    component_loadings
+                    * file_data.loadings_conversion_factor_to_mol_per_kg
                 )
 
         return pressures, loadings_list
 
     def get_mix_data(
         self, file_data: MixIsothermTextFileData
-    ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+    ) -> Tuple[
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+        npt.NDArray[np.float64],
+    ]:
         """
         Method to get multi-component isotherm data from a text file.
 
@@ -189,7 +215,9 @@ class TextFileHandler(AbstractHandler[MonoIsothermTextFileData, MixIsothermTextF
         file = np.loadtxt(file_path)
         pressures = file[:, file_data.pressures_col]
         loadings_list = self.get_loading_list(file, file_data, pressures)
-        compositions_list = self.get_bulk_composition(file, file_data, pressures)
+        compositions_list = self.get_bulk_composition(
+            file, file_data, pressures
+        )
 
         pressures, loadings_list = self.check_conversion_factors(
             pressures, loadings_list, file_data
