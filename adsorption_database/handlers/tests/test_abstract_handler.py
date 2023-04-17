@@ -1,25 +1,14 @@
 from pathlib import Path
 from typing import Tuple
 import numpy as np
-from adsorption_database.defaults import (
-    ADSORBATES,
-    ADSORBENTS,
-    EXPERIMENTS,
-    MIXTURE_ISOTHERMS,
-    MONO_ISOTHERMS,
-)
 from adsorption_database.handlers.abstract_handler import AbstractHandler
 import pytest
-import os
-from pytest_mock import MockerFixture
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
 from adsorption_database.models.experiment import Experiment, ExperimentType
 from adsorption_database.shared import (
     get_experiments_group,
     get_isotherm_store_name,
-    get_mix_isotherm_group,
-    get_mono_isotherm_group,
 )
 from adsorption_database.storage_provider import StorageProvider
 from adsorption_database.models.isotherms import (
@@ -39,7 +28,7 @@ class TestAbstractHandler(
     def get_mono_data(
         self, file_data: MonoIsothermFileData
     ) -> Tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-        return super().get_mono_data(file_data)
+        return super().get_mono_data(file_data)  # type:ignore[safe-super]
 
     def get_mix_data(
         self, file_data: MixIsothermFileData
@@ -48,7 +37,7 @@ class TestAbstractHandler(
         npt.NDArray[np.float64],
         npt.NDArray[np.float64],
     ]:
-        return super().get_mix_data(file_data)
+        return super().get_mix_data(file_data)  # type:ignore[safe-super]
 
 
 def test_get_isotherm_store_name(mono_isotherm: MonoIsotherm) -> None:

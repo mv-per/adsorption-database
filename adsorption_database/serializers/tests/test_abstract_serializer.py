@@ -16,16 +16,16 @@ class MockClass:
 
 class Serializer(AbstractSerializer):
     def dump(self, obj: Any, group: Group) -> None:
-        return super().dump(obj, group)
+        return super().dump(obj, group) # type:ignore[safe-super]
 
     def load(self, group: Group) -> Any:
-        return super().load(group)
+        return super().load(group) # type:ignore[safe-super]
 
     def get_attributes(self):
-        return super().get_attributes()
+        return super().get_attributes() # type:ignore[safe-super]
 
     def get_datasets(self):
-        return super().get_datasets()
+        return super().get_datasets() # type:ignore[safe-super]
 
 
 def test_upsert_dataset() -> None:

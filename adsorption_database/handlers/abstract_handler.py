@@ -10,7 +10,7 @@ from adsorption_database.defaults import (
 
 from adsorption_database.models.adsorbent import Adsorbent
 from adsorption_database.models.experiment import Experiment
-from adsorption_database.models.adsorbate import Adsorbent, Adsorbate
+from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.isotherms import (
     MixIsothermFileData,
     MonoIsothermFileData,
