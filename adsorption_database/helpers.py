@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Any, List
-import numpy.typing as npt
 
 from attr import fields
 
@@ -49,37 +48,26 @@ class Helpers:
 
     @staticmethod
     def assert_equal(obj1: Any, obj2: Any) -> None:
-
         _fields = fields(type(obj1))
 
         for f in _fields:
-            try:
-                _is_array = is_array(f.type)
-            except AttributeError:
-                _is_array = False
+            val1 = getattr(obj1, f.name)
+            val2 = getattr(obj2, f.name)
 
-            if _is_array:
-                val = getattr(obj2, f.name)
-                if val is None:
-                    assert getattr(obj2, f.name) == getattr(obj1, f.name)
-                elif (
-                    isinstance(val, List)
-                    and len(val) > 0
-                    and "__attrs_attrs__" in dir(val[0])
-                ):  # check if this is an attrs class
-                    for index in range(len(val)):
-                        Helpers.assert_equal(
-                            val[index], getattr(obj1, f.name)[index]
-                        )
+            if is_array(f.type):
+                if val2 is None:
+                    assert val1 == val2
+                elif isinstance(val2, List) and len(val2) > 0 and "__attrs_attrs__" in dir(val2[0]):
+                    for index in range(len(val2)):
+                        Helpers.assert_equal(val1[index], val2[index])
                 else:
-                    _objs = getattr(obj2, f.name) == getattr(obj1, f.name)
+                    objs_equal = val1 == val2
 
                     try:
-                        _arr = [__obj for __obj in _objs]
-                        assert all(_arr)
+                        assert all(objs_equal)
                     except ValueError:
-                        assert _objs.all()
+                        assert objs_equal.all()
                     except TypeError:
-                        assert _objs
+                        assert objs_equal
             else:
-                assert getattr(obj2, f.name) == getattr(obj1, f.name)
+                assert val1 == val2

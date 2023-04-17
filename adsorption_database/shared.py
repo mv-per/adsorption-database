@@ -1,4 +1,3 @@
-from attr import fields
 import numpy as np
 from adsorption_database.defaults import (
     ADSORBATES,
@@ -9,11 +8,8 @@ from adsorption_database.defaults import (
 )
 from typing import Any, Dict, List, Tuple, Type
 from h5py import Group
-import numpy.typing as npt
-import numpy as np
 from adsorption_database.helpers import Helpers
 
-from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.isotherms import Isotherm
 from adsorption_database.storage_provider import StorageProvider
 

@@ -1,7 +1,6 @@
 # pragma: no cover
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 from attr import fields
-import numpy as np
 
 
 from adsorption_database.defaults import MONO_ISOTHERMS, MIXTURE_ISOTHERMS
@@ -12,7 +11,6 @@ from adsorption_database.models.adsorbent import Adsorbent
 from adsorption_database.models.experiment import Experiment
 
 from adsorption_database.models.isotherms import (
-    Isotherm,
     MixIsotherm,
     MonoIsotherm,
 )
@@ -29,7 +27,6 @@ from adsorption_database.serializers.mono_isotherm_serializer import (
 from adsorption_database.shared import (
     get_adsorbent_group_route,
     get_attr_fields_from_infos,
-    get_isotherm_store_name,
     get_root_group,
 )
 

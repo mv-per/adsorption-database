@@ -14,9 +14,6 @@ from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.adsorbent import Adsorbent, AdsorbentType
 from adsorption_database.models.experiment import Experiment, ExperimentType
 from adsorption_database.models.isotherms import MixIsotherm, MonoIsotherm
-from adsorption_database.serializers.abstract_serializer import (
-    AbstractSerializer,
-)
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.experiment_serializer import (
     ExperimentSerializer,

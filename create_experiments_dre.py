@@ -19,7 +19,9 @@ if __name__ == "__main__":
     CO2 = Adsorbate("Carbon Dioxide", "CO2")
     CH4 = Adsorbate("Methane", "CH4")
     N2 = Adsorbate("Nitrogen", "N2")
-    adsorbent = Adsorbent(AdsorbentType.ACTIVATED_CARBON, "Norit R1", void_volume=0.3511)
+    adsorbent = Adsorbent(
+        AdsorbentType.ACTIVATED_CARBON, "Norit R1", void_volume=0.3511
+    )
     handler.register_adsorbent(adsorbent)
 
     mono_isotherms = []
@@ -31,20 +33,45 @@ if __name__ == "__main__":
         handler.register_adsorbate(adsorbate)
 
         pure_data = MonoIsothermTextFileData(
-            f"{file_name}.txt", adsorbate, 0, 1, pressure_conversion_factor_to_Pa=1e6
+            f"{file_name}.txt",
+            adsorbate,
+            0,
+            1,
+            pressure_conversion_factor_to_Pa=1e6,
         )
         mono_isotherms.append(
             handler.create_mono_isotherm(
-                f"{adsorbate.chemical_formula}-0{ix}", 298, IsothermType.EXCESS, pure_data
+                f"{adsorbate.chemical_formula}-0{ix}",
+                298,
+                IsothermType.EXCESS,
+                pure_data,
             )
         )
 
     mix_isotherms = []
 
     mix = [
-        {"adsorbates": [CH4, CO2], "x": [20, 55, 95], "pos_n": [2, 4], "pos_y": [1], "get": False},
-        {"adsorbates": [CH4, N2], "x": [10, 45, 75], "pos_n": [2, 4], "pos_y": [1], "get": False},
-        {"adsorbates": [CO2, N2], "x": [20, 50, 90], "pos_n": [2, 4], "pos_y": [1], "get": False},
+        {
+            "adsorbates": [CH4, CO2],
+            "x": [20, 55, 95],
+            "pos_n": [2, 4],
+            "pos_y": [1],
+            "get": False,
+        },
+        {
+            "adsorbates": [CH4, N2],
+            "x": [10, 45, 75],
+            "pos_n": [2, 4],
+            "pos_y": [1],
+            "get": False,
+        },
+        {
+            "adsorbates": [CO2, N2],
+            "x": [20, 50, 90],
+            "pos_n": [2, 4],
+            "pos_y": [1],
+            "get": False,
+        },
         {
             "adsorbates": [CH4, CO2, N2],
             "x": [1, 2, 3, 4, 5],
@@ -57,19 +84,25 @@ if __name__ == "__main__":
     ]
 
     for mixture in mix:
-        adsorbates: List[Adsorbate] = mixture["adsorbates"]  # type:ignore[assignment]
+        adsorbates: List[Adsorbate] = mixture[
+            "adsorbates"
+        ]  # type:ignore[assignment]
         compositions: List[int] = mixture["x"]  # type:ignore[assignment]
-        pos_n:List[int] = mixture["pos_n"] # type:ignore[assignment]
-        pos_y:List[int] = mixture["pos_y"] # type:ignore[assignment]
+        pos_n: List[int] = mixture["pos_n"]  # type:ignore[assignment]
+        pos_y: List[int] = mixture["pos_y"]  # type:ignore[assignment]
 
         if mixture["get"]:
-            get_loadings = GetLoadingsFromAdsorbed(True, mixture["pos_x"], mixture["pos_nt"])
+            get_loadings = GetLoadingsFromAdsorbed(
+                True, mixture["pos_x"], mixture["pos_nt"]
+            )
         else:
             get_loadings = None  # type:ignore[assignment]
 
         for x in compositions:
 
-            names: List[str] = [str(adsorbate.chemical_formula) for adsorbate in adsorbates]
+            names: List[str] = [
+                str(adsorbate.chemical_formula) for adsorbate in adsorbates
+            ]
 
             adsorbates_names = ("_").join(names)
             file_name = f"DRE_99_{adsorbates_names}_{x}"
@@ -87,7 +120,9 @@ if __name__ == "__main__":
 
             name = ("-").join(names)
             mix_isotherms.append(
-                handler.create_mix_isotherm(f"{name}-{x}", 298, IsothermType.EXCESS, mix_data)
+                handler.create_mix_isotherm(
+                    f"{name}-{x}", 298, IsothermType.EXCESS, mix_data
+                )
             )
 
     experiment = Experiment(

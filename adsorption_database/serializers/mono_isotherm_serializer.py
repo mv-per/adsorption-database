@@ -3,7 +3,7 @@ from attr import fields
 
 import numpy as np
 from adsorption_database.models.adsorbate import Adsorbate
-from h5py import Group, SoftLink
+from h5py import Group
 import numpy.typing as npt
 
 from adsorption_database.models.isotherms import MonoIsotherm

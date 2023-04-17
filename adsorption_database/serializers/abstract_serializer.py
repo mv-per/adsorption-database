@@ -1,7 +1,6 @@
 import enum
 from typing import Any, List, Tuple
 from h5py import Group
-from abc import abstractmethod
 import numpy.typing as npt
 from abc import abstractmethod
 import numpy as np

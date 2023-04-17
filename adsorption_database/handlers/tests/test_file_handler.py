@@ -216,8 +216,6 @@ def test_create_mix_isotherm(
 
     handler = TextFileHandler(datadir)
 
-    adsorbate = Adsorbate("adsorbate name", "adsorbate_formula")
-
     mixture_data = MixIsothermTextFileData(
         "mixture_two_components_example.txt",
         [co2_adsorbate, ch4_adsorbate],

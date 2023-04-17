@@ -2,12 +2,11 @@ from typing import Any, Dict, List
 from attr import fields
 
 import numpy as np
-from adsorption_database.defaults import MIXTURE_ISOTHERMS
 from adsorption_database.models.adsorbate import Adsorbate
 from h5py import Group
 import numpy.typing as npt
 
-from adsorption_database.models.isotherms import MixIsotherm, MonoIsotherm
+from adsorption_database.models.isotherms import MixIsotherm
 from adsorption_database.serializers.abstract_serializer import (
     AbstractSerializer,
 )

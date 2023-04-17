@@ -10,15 +10,11 @@ from adsorption_database.helpers import Helpers
 from pytest_regressions.data_regression import DataRegressionFixture
 from adsorption_database.models.adsorbate import Adsorbate
 from adsorption_database.models.isotherms import MixIsotherm
-from adsorption_database.serializers.abstract_serializer import (
-    AbstractSerializer,
-)
 from adsorption_database.serializers.attrs_serializer import AttrOnlySerializer
 from adsorption_database.serializers.mix_isotherm_serializer import (
     MixIsothermSerializer,
 )
 from adsorption_database.storage_provider import StorageProvider
-from h5py import Group
 
 
 @pytest.fixture
