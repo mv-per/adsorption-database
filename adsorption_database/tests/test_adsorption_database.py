@@ -1,10 +1,6 @@
-from pytest_mock import MockerFixture
 from adsorption_database import AdsorptionDatabase
 from pytest_regressions.data_regression import DataRegressionFixture
 from adsorption_database.helpers import Helpers
-from adsorption_database.shared import gen_regression
-
-from adsorption_database.storage_provider import StorageProvider
 
 
 def test_list_experiments(data_regression: DataRegressionFixture) -> None:
@@ -41,6 +37,30 @@ def test_get_experiment() -> None:
     experiment = database.get_experiment("Dre-norit-R1")
 
     assert experiment
+
+
+def test_get_adsobate() -> None:
+
+    database = AdsorptionDatabase()
+
+    adsorbates = database.list_adsorbates()
+
+    adsorbate = database.get_adsorbate(adsorbates[0])
+    assert adsorbate is not None
+    assert adsorbate.name is not None
+    assert adsorbate.chemical_formula is not None
+
+
+def test_get_adsobent() -> None:
+
+    database = AdsorptionDatabase()
+
+    adsorbents = database.list_adsorbents()
+
+    adsorbent = database.get_adsorbent(adsorbents[0])
+    assert adsorbent is not None
+    assert adsorbent.name is not None
+    assert adsorbent.type is not None
 
 
 def test_get_storage_regression(helpers: Helpers, data_regression: DataRegressionFixture) -> None:
