@@ -104,6 +104,8 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
             experiments_group = get_experiments_group(file)
             group = experiments_group.require_group(experiment.name)
 
+            self.register_adsorbent(experiment.adsorbent)
+
             # register isotherms
             isotherm_names = []
             for pure_isotherm in experiment.monocomponent_isotherms:
@@ -134,6 +136,8 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
         pure_isotherms_group = get_mono_isotherm_group(experiment_group)
         stored_isotherm_name = get_isotherm_store_name(isotherm)
 
+        self.register_adsorbate(isotherm.adsorbate)
+
         isotherm_group = pure_isotherms_group.require_group(stored_isotherm_name)
 
         MonoIsothermSerializer().dump(isotherm, isotherm_group)
@@ -157,6 +161,9 @@ class AbstractHandler(Generic[_MonoFileData, _MixFileData]):
 
         mixture_isotherms_group = get_mix_isotherm_group(experiment_group)
         stored_isotherm_name = get_isotherm_store_name(isotherm)
+
+        for adsorbate in isotherm.adsorbates:
+            self.register_adsorbate(adsorbate)
 
         isotherm_group = mixture_isotherms_group.require_group(stored_isotherm_name)
 
