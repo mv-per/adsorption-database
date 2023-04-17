@@ -18,6 +18,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install build-essential
+          sudo apt-get build-dep hdf5
           python -m pip install --upgrade pip setuptools pip-tools
           pip-compile requirements.in
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
