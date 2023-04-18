@@ -16,6 +16,9 @@ class GroupNotFound(Exception):
 
 
 class AdsorptionDatabase:
+    """
+    The AdsorptionDatabase class provides methods to access and retrieve adsorption data from the adsorption database.
+    """
     def __init__(self):
         self._provider = StorageProvider()
 
@@ -30,7 +33,7 @@ class AdsorptionDatabase:
             childs = list(f[child_name])
         return childs
 
-    def get_attr_only_obj(
+    def _get_attr_only_obj(
         self, name: str, parent_group_name: str, model_class: Any
     ) -> Optional[Any]:
 
@@ -45,15 +48,47 @@ class AdsorptionDatabase:
         return obj
 
     def list_experiments(self) -> List[str]:
+        """
+        Retrieve the unique experiments present in the adsorption database as a list of strings.
+
+        :return: The unique experiments as a list of strings.
+        :rtype: List[str]
+        """
         return self._list_group_childs(EXPERIMENTS)
 
     def list_adsorbates(self) -> List[str]:
+        """
+        Retrieve the unique adsorbate species present in the adsorption database as a list of strings.
+
+        :return: The unique adsorbate species as a list of strings.
+        :rtype: List[str]
+
+        """
         return self._list_group_childs(ADSORBATES)
 
     def list_adsorbents(self) -> List[str]:
+        """
+        Retrieve the unique adsorbent materials present in the adsorption database as a list of strings.
+
+        :return: The unique adsorbent materials as a list of strings.
+        :rtype: List[str]
+        """
         return self._list_group_childs(ADSORBENTS)
 
     def get_experiment(self, experiment_name: str) -> Optional[Experiment]:
+        """
+        Retrieve an experiment with the given name from the adsorption database.
+
+        This method reads the experiment data from the adsorption database and returns an instance of the `Experiment`
+        class, which represents the experiment data.
+
+        :param experiment_name: The name of the experiment to retrieve.
+        :type experiment_name: str
+        :return: An instance of the `Experiment` class representing the retrieved experiment data, or None if the experiment
+                 with the given name is not found.
+        :rtype: Optional[Experiment]
+        :raises GroupNotFound: If the experiment with the given name is not found in the adsorption database.
+        """
 
         with self._provider.get_readable_file() as f:
             experiment_group = f[EXPERIMENTS].get(experiment_name)
@@ -66,7 +101,31 @@ class AdsorptionDatabase:
         return experiment
 
     def get_adsorbate(self, name: str) -> Optional[Adsorbate]:
-        return self.get_attr_only_obj(name, ADSORBATES, Adsorbate)
+        """
+        Retrieve an adsorbate with the given name from the adsorption database.
+
+        This method reads the adsorbate data from the adsorption database and returns an instance of the `Adsorbate`
+        class, which represents the adsorbate data.
+
+        :param name: The name of the adsorbate to retrieve.
+        :type name: str
+        :return: An instance of the `Adsorbate` class representing the retrieved adsorbate data, or None if the adsorbate
+                 with the given name is not found.
+        :rtype: Optional[Adsorbate]
+        """
+        return self._get_attr_only_obj(name, ADSORBATES, Adsorbate)
 
     def get_adsorbent(self, name: str) -> Optional[Adsorbent]:
-        return self.get_attr_only_obj(name, ADSORBENTS, Adsorbent)
+        """
+        Retrieve an adsorbent with the given name from the adsorption database.
+
+        This method reads the adsorbent data from the adsorption database and returns an instance of the `Adsorbent`
+        class, which represents the adsorbent data.
+
+        :param name: The name of the adsorbent to retrieve.
+        :type name: str
+        :return: An instance of the `Adsorbent` class representing the retrieved adsorbent data, or None if the adsorbent
+                 with the given name is not found.
+        :rtype: Optional[Adsorbent]
+        """
+        return self._get_attr_only_obj(name, ADSORBENTS, Adsorbent)
