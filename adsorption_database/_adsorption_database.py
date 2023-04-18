@@ -19,6 +19,7 @@ class AdsorptionDatabase:
     """
     The AdsorptionDatabase class provides methods to access and retrieve adsorption data from the adsorption database.
     """
+    
     def __init__(self):
         self._provider = StorageProvider()
 

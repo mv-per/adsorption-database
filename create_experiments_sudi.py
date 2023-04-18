@@ -18,7 +18,6 @@ if __name__ == "__main__":
     CH4 = Adsorbate("Methane", "CH4")
     N2 = Adsorbate("Nitrogen", "N2")
     Calgon = Adsorbent(AdsorbentType.ACTIVATED_CARBON, "Calgon-F400")
-    handler.register_adsorbent(Calgon)
 
     mono_isotherms = []
     for file_name, adsorbate, ix in zip(
@@ -26,7 +25,6 @@ if __name__ == "__main__":
         [CO2, CH4, N2, CH4, N2],
         [1, 1, 1, 2, 2],
     ):
-        handler.register_adsorbate(adsorbate)
 
         pure_data = MonoIsothermTextFileData(
             f"{file_name}.txt", adsorbate, 0, 1, pressure_conversion_factor_to_Pa=1e6

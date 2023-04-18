@@ -11,6 +11,21 @@ def test_list_experiments(data_regression: DataRegressionFixture) -> None:
 
     data_regression.check({"experiments": experiments})
 
+def test_list_papers(data_regression: DataRegressionFixture) -> None:
+
+    database = AdsorptionDatabase()
+
+    experiments = database.list_experiments()
+
+    paper_ulrs = []
+    for experiment in experiments:
+        exp = database.get_experiment(experiment)
+        if exp is None:
+            continue
+        paper_ulrs.append(exp.paper_url)
+
+    data_regression.check({"papers": paper_ulrs})
+
 
 def test_list_adsorbates(data_regression: DataRegressionFixture) -> None:
 
