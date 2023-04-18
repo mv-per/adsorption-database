@@ -22,7 +22,6 @@ if __name__ == "__main__":
     adsorbent = Adsorbent(
         AdsorbentType.ACTIVATED_CARBON, "Norit R1", void_volume=0.3511
     )
-    # handler.register_adsorbent(adsorbent)
 
     mono_isotherms = []
     for file_name, adsorbate, ix in zip(
@@ -30,7 +29,6 @@ if __name__ == "__main__":
         [CO2, CH4, N2],
         [1, 1, 1],
     ):
-        # handler.register_adsorbate(adsorbate)
 
         pure_data = MonoIsothermTextFileData(
             f"{file_name}.txt",

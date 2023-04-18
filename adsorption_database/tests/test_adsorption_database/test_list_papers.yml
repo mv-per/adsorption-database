@@ -1,3 +1,58 @@
-papers:
-- https://link.springer.com/article/10.1023/A:1008914703884
-- https://pubs.acs.org/doi/pdf/10.1021/la020976k
+Dre-norit-R1:
+  DOI: 10.1023/A:1008914703884
+  Database Experiment Name: Dre-norit-R1
+  authors:
+  - affiliation: []
+    family: Dreisbach
+    given: F.
+    sequence: first
+  - affiliation: []
+    family: Staudt
+    given: R.
+    sequence: additional
+  - affiliation: []
+    family: Keller
+    given: J.U.
+    sequence: additional
+  publisher: Springer Science and Business Media LLC
+  title: []
+  year: '1999'
+Sudi-calgon:
+  DOI: 10.1021/la020976k
+  Database Experiment Name: Sudi-calgon
+  authors:
+  - affiliation:
+    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
+        Oklahoma 74078
+    family: Sudibandriyo
+    given: Mahmud
+    sequence: first
+  - affiliation:
+    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
+        Oklahoma 74078
+    family: Pan
+    given: Zhejun
+    sequence: additional
+  - affiliation:
+    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
+        Oklahoma 74078
+    family: Fitzgerald
+    given: James E.
+    sequence: additional
+  - affiliation:
+    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
+        Oklahoma 74078
+    family: Robinson
+    given: Robert L.
+    sequence: additional
+  - affiliation:
+    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
+        Oklahoma 74078
+    family: Gasem
+    given: Khaled A. M.
+    sequence: additional
+  publisher: American Chemical Society (ACS)
+  title:
+  - Adsorption of Methane, Nitrogen, Carbon Dioxide, and Their Binary Mixtures on
+    Dry Activated Carbon at 318.2 K and Pressures up to 13.6 MPa
+  year: '2003'

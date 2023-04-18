@@ -1,34 +1,57 @@
+import asyncio
+from typing import Any, Dict
 from adsorption_database import AdsorptionDatabase
 from pytest_regressions.data_regression import DataRegressionFixture
 from adsorption_database.helpers import Helpers
 
 
 def test_list_experiments(data_regression: DataRegressionFixture) -> None:
-
     database = AdsorptionDatabase()
 
     experiments = database.list_experiments()
 
     data_regression.check({"experiments": experiments})
 
-def test_list_papers(data_regression: DataRegressionFixture) -> None:
+def get_paper_title(doi:str):
+    import requests
+    import json
 
+    response = requests.get('https://api.crossref.org/works/' + doi)
+    response_content = json.loads(response._content)
+
+    title = response_content['message'].get('title', [None])
+    authors = response_content['message'].get('author', [None])
+    publisher = response_content['message'].get('publisher', [None])
+    return title, authors, publisher
+
+
+def test_list_papers(data_regression: DataRegressionFixture) -> None:
     database = AdsorptionDatabase()
 
     experiments = database.list_experiments()
 
-    paper_ulrs = []
+    EXPs = {}
     for experiment in experiments:
         exp = database.get_experiment(experiment)
         if exp is None:
             continue
-        paper_ulrs.append(exp.paper_url)
 
-    data_regression.check({"papers": paper_ulrs})
+        title, authors, publisher = get_paper_title(str(exp.paper_doi))
+
+        EXPs[exp.name] = {
+            "Database Experiment Name": exp.name,
+            "DOI": exp.paper_doi,
+            "title": title,
+            "authors": authors,
+            "year": exp.year,
+            "publisher":publisher
+        }
+
+
+    data_regression.check(EXPs)
 
 
 def test_list_adsorbates(data_regression: DataRegressionFixture) -> None:
-
     database = AdsorptionDatabase()
 
     adsorbates = database.list_adsorbates()
@@ -37,7 +60,6 @@ def test_list_adsorbates(data_regression: DataRegressionFixture) -> None:
 
 
 def test_list_adsorbents(data_regression: DataRegressionFixture) -> None:
-
     database = AdsorptionDatabase()
 
     adsorbents = database.list_adsorbents()
@@ -46,7 +68,6 @@ def test_list_adsorbents(data_regression: DataRegressionFixture) -> None:
 
 
 def test_get_experiment() -> None:
-
     database = AdsorptionDatabase()
 
     experiment = database.get_experiment("Dre-norit-R1")
@@ -55,7 +76,6 @@ def test_get_experiment() -> None:
 
 
 def test_get_adsobate() -> None:
-
     database = AdsorptionDatabase()
 
     adsorbates = database.list_adsorbates()
@@ -67,7 +87,6 @@ def test_get_adsobate() -> None:
 
 
 def test_get_adsobent() -> None:
-
     database = AdsorptionDatabase()
 
     adsorbents = database.list_adsorbents()
@@ -81,7 +100,6 @@ def test_get_adsobent() -> None:
 def test_get_storage_regression(
     helpers: Helpers, data_regression: DataRegressionFixture
 ) -> None:
-
     from adsorption_database.storage_provider import StorageProvider
 
     path = StorageProvider().get_file_path()

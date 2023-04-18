@@ -3,6 +3,7 @@
 # Adsorption Database
 This repository contains a database of adsorption data for various adsorbent-adsorbate systems. The adsorption data has been compiled from published literature and other reliable sources. The goal of this database is to provide a comprehensive and reliable resource for researchers, engineers, and practitioners working in the field of adsorption.
 
+Papers in database: ![Here](https://github.com/mv-per/adsorption-database/blob/main/adsorption_database/tests/test_adsorption_database/test_list_papers.yml)
 ## Features
 Large Collection of Data: The database contains a large collection of adsorption data for different adsorbent-adsorbate pairs, including isotherms, kinetics, and thermodynamics data.
 Open Data: The data in this repository is open and can be used freely for academic, research, and non-commercial purposes, subject to proper attribution and citation of the original sources.
