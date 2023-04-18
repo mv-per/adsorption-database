@@ -24,6 +24,7 @@ class MonoIsothermTextFileData(MonoIsothermFileData):
     loadings_col: int
     pressure_conversion_factor_to_Pa: Optional[float] = None
     loadings_conversion_factor_to_mol_per_kg: Optional[float] = None
+    filter_duplicate:bool=False
 
 
 @define
@@ -35,6 +36,7 @@ class MixIsothermTextFileData(MixIsothermFileData):
     pressure_conversion_factor_to_Pa: Optional[float] = None
     loadings_conversion_factor_to_mol_per_kg: Optional[float] = None
     get_loadings_from_adsorbed: Optional[GetLoadingsFromAdsorbed] = None
+    filter_duplicate:bool=False
 
 
 class TextFileHandler(
@@ -79,6 +81,11 @@ class TextFileHandler(
         file = np.loadtxt(file_path)
         pressures = file[:, file_data.pressures_col]
         loadings = file[:, file_data.loadings_col]
+
+        #remove_duplicates
+        if file_data.filter_duplicate:
+            pressures = np.unique(pressures)
+            loadings = np.unique(loadings)
 
         if file_data.pressure_conversion_factor_to_Pa is not None:
             pressures = (

@@ -130,9 +130,7 @@ if __name__ == "__main__":
         experiment_type=ExperimentType.GRAVIMETRIC,
         monocomponent_isotherms=mono_isotherms,
         mixture_isotherms=mix_isotherms,
-        paper_url="https://link.springer.com/article/10.1023/A:1008914703884",
-        year="1999",
-        paper_doi="10.1023/A:1008914703884",
+        paper_doi=["10.1023/A:1008914703884"],
     )
 
     handler.register_experiment(experiment)

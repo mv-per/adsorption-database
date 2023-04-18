@@ -6,7 +6,7 @@ from adsorption_database.serializers.experiment_serializer import (
     ExperimentSerializer,
 )
 from adsorption_database.storage_provider import StorageProvider
-from adsorption_database.defaults import EXPERIMENTS, ADSORBATES, ADSORBENTS
+from adsorption_database.defaults import EXPERIMENTS, ADSORBATES, ADSORBENTS, MIXTURE_ISOTHERMS, MONO_ISOTHERMS
 from adsorption_database.models.experiment import Experiment
 from h5py import Group
 
@@ -47,6 +47,12 @@ class AdsorptionDatabase:
             obj = AttrOnlySerializer(model_class).load(obj_group)
 
         return obj
+
+    def list_pure_isotherms(self, experiment_name:str)->List[str]:
+        self._list_group_childs(f"{EXPERIMENTS}/{experiment_name}/{MONO_ISOTHERMS}")
+
+    def list_mixture_isotherms(self, experiment_name:str)->List[str]:
+        self._list_group_childs(f"{EXPERIMENTS}/{experiment_name}/{MIXTURE_ISOTHERMS}")
 
     def list_experiments(self) -> List[str]:
         """

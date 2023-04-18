@@ -83,9 +83,7 @@ if __name__ == "__main__":
         experiment_type=ExperimentType.VOLUMETRIC,
         monocomponent_isotherms=mono_isotherms,
         mixture_isotherms=mix_isotherms,
-        paper_url="https://pubs.acs.org/doi/pdf/10.1021/la020976k",
-        year="2003",
-        paper_doi="10.1021/la020976k",
+        paper_doi=["10.1021/la020976k"],
     )
 
     handler.register_experiment(experiment)

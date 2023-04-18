@@ -23,4 +23,4 @@ class Experiment:
     paper_url: Optional[str] = None
     authors: Optional[List[str]] = None
     year: Optional[str] = None
-    paper_doi: Optional[str] = None
+    paper_doi: Optional[List[str]] = None
