@@ -37,6 +37,3 @@ ignore_missing_imports = true
 [tool.black]
 line-length = 79
 target-version = ['py37']
-
-[tool.pytest]
-asyncio_mode=auto
