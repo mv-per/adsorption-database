@@ -11,3 +11,4 @@ pytest-cov
 pytest-lazy-fixture
 invoke
 jsonpickle
+requests
