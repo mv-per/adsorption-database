@@ -35,16 +35,29 @@ def test_list_papers(data_regression: DataRegressionFixture) -> None:
         exp = database.get_experiment(experiment)
         if exp is None:
             continue
+        
+        titles = []
+        authors = []
+        publishers = []
 
-        title, authors, publisher = get_paper_title(str(exp.paper_doi))
+        for doi in exp.paper_doi:
+            _title, _authors, _publisher = get_paper_title(str(doi))
+
+            titles.append(_title)
+            authors.append(_authors)
+            publishers.append(_publisher)
+
+        pure_isotherms = database.list_pure_isotherms(experiment)
+        mixture_isotherms = database.list_mixture_isotherms(experiment)
 
         EXPs[exp.name] = {
             "Database Experiment Name": exp.name,
-            "DOI": exp.paper_doi,
-            "title": title,
-            "authors": authors,
-            "year": exp.year,
-            "publisher":publisher
+            "DOI(s)": exp.paper_doi,
+            "title(s)": titles,
+            "publishers":publishers,
+            "adsorbent":exp.adsorbent.name,
+            "pure_isotherms":pure_isotherms,
+            "mixture_isotherms":mixture_isotherms,
         }
 
 

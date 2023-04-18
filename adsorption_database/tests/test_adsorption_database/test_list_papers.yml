@@ -1,58 +1,37 @@
 Dre-norit-R1:
-  DOI: 10.1023/A:1008914703884
+  DOI(s):
+  - 10.1023/A:1008914703884
   Database Experiment Name: Dre-norit-R1
-  authors:
-  - affiliation: []
-    family: Dreisbach
-    given: F.
-    sequence: first
-  - affiliation: []
-    family: Staudt
-    given: R.
-    sequence: additional
-  - affiliation: []
-    family: Keller
-    given: J.U.
-    sequence: additional
-  publisher: Springer Science and Business Media LLC
-  title: []
-  year: '1999'
+  adsorbent: Norit R1
+  mixture_isotherms: null
+  publishers:
+  - Springer Science and Business Media LLC
+  pure_isotherms: null
+  title(s):
+  - []
+MOFA-5A:
+  DOI(s):
+  - 10.1016/j.micromeso.2014.08.022
+  - 10.1021/je4005036
+  Database Experiment Name: MOFA-5A
+  adsorbent: 5A
+  mixture_isotherms: null
+  publishers:
+  - Elsevier BV
+  - American Chemical Society (ACS)
+  pure_isotherms: null
+  title(s):
+  - - Gas adsorption separation of CO2/CH4 system using zeolite 5A
+  - - Pure and Binary Adsorption Equilibria of Methane and Nitrogen on Zeolite 5A
 Sudi-calgon:
-  DOI: 10.1021/la020976k
+  DOI(s):
+  - 10.1021/la020976k
   Database Experiment Name: Sudi-calgon
-  authors:
-  - affiliation:
-    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
-        Oklahoma 74078
-    family: Sudibandriyo
-    given: Mahmud
-    sequence: first
-  - affiliation:
-    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
-        Oklahoma 74078
-    family: Pan
-    given: Zhejun
-    sequence: additional
-  - affiliation:
-    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
-        Oklahoma 74078
-    family: Fitzgerald
-    given: James E.
-    sequence: additional
-  - affiliation:
-    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
-        Oklahoma 74078
-    family: Robinson
-    given: Robert L.
-    sequence: additional
-  - affiliation:
-    - name: School of Chemical Engineering, 423 EN, Oklahoma State University, Stillwater,
-        Oklahoma 74078
-    family: Gasem
-    given: Khaled A. M.
-    sequence: additional
-  publisher: American Chemical Society (ACS)
-  title:
-  - Adsorption of Methane, Nitrogen, Carbon Dioxide, and Their Binary Mixtures on
-    Dry Activated Carbon at 318.2 K and Pressures up to 13.6 MPa
-  year: '2003'
+  adsorbent: Calgon-F400
+  mixture_isotherms: null
+  publishers:
+  - American Chemical Society (ACS)
+  pure_isotherms: null
+  title(s):
+  - - Adsorption of Methane, Nitrogen, Carbon Dioxide, and Their Binary Mixtures on
+      Dry Activated Carbon at 318.2 K and Pressures up to 13.6 MPa
