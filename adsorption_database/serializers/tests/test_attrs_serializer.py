@@ -41,7 +41,6 @@ def test_dump_adsorbent(
     setup_storage: Path,
     data_regression: DataRegressionFixture,
 ) -> None:
-
     mock_adsorbent = Adsorbent(AdsorbentType.ZEOLITE, "z01x", 100, 20)
 
     serializer = AttrOnlySerializer(Adsorbent)
@@ -55,8 +54,12 @@ def test_dump_adsorbent(
 
 
 def test_load_adsorbent(helpers: Helpers) -> None:
-
-    mock_adsorbent = Adsorbent(AdsorbentType.ZEOLITE, "z01x", 100, 20)
+    mock_adsorbent = Adsorbent(
+        type=AdsorbentType.ZEOLITE,
+        name="z01x",
+        manufacturer="100",
+        void_volume=20,
+    )
 
     serializer = AttrOnlySerializer(Adsorbent)
 

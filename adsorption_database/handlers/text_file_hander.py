@@ -24,7 +24,7 @@ class MonoIsothermTextFileData(MonoIsothermFileData):
     loadings_col: int
     pressure_conversion_factor_to_Pa: Optional[float] = None
     loadings_conversion_factor_to_mol_per_kg: Optional[float] = None
-    filter_duplicate:bool=False
+    filter_duplicate: bool = False
 
 
 @define
@@ -36,7 +36,7 @@ class MixIsothermTextFileData(MixIsothermFileData):
     pressure_conversion_factor_to_Pa: Optional[float] = None
     loadings_conversion_factor_to_mol_per_kg: Optional[float] = None
     get_loadings_from_adsorbed: Optional[GetLoadingsFromAdsorbed] = None
-    filter_duplicate:bool=False
+    filter_duplicate: bool = False
 
 
 class TextFileHandler(
@@ -82,21 +82,29 @@ class TextFileHandler(
         pressures = file[:, file_data.pressures_col]
         loadings = file[:, file_data.loadings_col]
 
-        #remove_duplicates
+        # remove_duplicates
         if file_data.filter_duplicate:
-            pressures = np.unique(pressures)
-            loadings = np.unique(loadings)
+            pairs = [(p, n) for p, n in zip(pressures, loadings)]
 
-        if file_data.pressure_conversion_factor_to_Pa is not None:
-            pressures = (
-                pressures[:] * file_data.pressure_conversion_factor_to_Pa
-            )
+            filtered_pairs = []
+            for pair in pairs:
+                if pair in filtered_pairs:
+                    continue
+                filtered_pairs.append(pair)
 
-        if file_data.loadings_conversion_factor_to_mol_per_kg is not None:
-            loadings = (
-                loadings[:]
-                * file_data.loadings_conversion_factor_to_mol_per_kg
-            )
+            pressures = [float(val[0]) for val in filtered_pairs]
+            loadings = [float(val[1]) for val in filtered_pairs]
+
+        p_factor = file_data.pressure_conversion_factor_to_Pa
+        if p_factor is not None:
+            pressures = [p * p_factor for p in pressures]
+
+        n_factor = file_data.loadings_conversion_factor_to_mol_per_kg
+        if n_factor is not None:
+            loadings = [n * n_factor for n in loadings]
+
+        pressures = np.array(pressures, dtype=np.float64)
+        loadings = np.array(loadings, dtype=np.float64)
 
         assert pressures.shape == loadings.shape
 
@@ -108,10 +116,8 @@ class TextFileHandler(
         file_data: MixIsothermFileData,
         pressures: npt.NDArray[np.float64],
     ) -> npt.NDArray[np.float64]:
-
         compositions_list: List[npt.NDArray[np.float64]] = []
         for index in range(len(file_data.adsorbates)):
-
             try:
                 component_compositions = file[:, file_data.composition_cols[index]]  # type: ignore[attr-defined]
             except IndexError:
@@ -135,7 +141,6 @@ class TextFileHandler(
         file_data: MixIsothermFileData,
         pressures: npt.NDArray[np.float64],
     ) -> npt.NDArray[np.float64]:
-
         adsorbed_x_list: List[npt.NDArray[np.float64]] = []
         loadings_list: List[npt.NDArray[np.float64]] = []
 
@@ -145,7 +150,6 @@ class TextFileHandler(
             file_data.get_loadings_from_adsorbed.pos_nt,  # type: ignore[attr-defined]
         ]
         for index in range(len(file_data.adsorbates)):
-
             try:
                 component_compositions = file[:, x_cols[index]]
             except IndexError:
@@ -170,7 +174,6 @@ class TextFileHandler(
         file_data: MixIsothermTextFileData,
         pressures: npt.NDArray[np.float64],
     ) -> npt.NDArray[np.float64]:
-
         if file_data.get_loadings_from_adsorbed is not None:
             return self.get_loadings_from_adsorbed_compositions(
                 file, file_data, pressures

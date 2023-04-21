@@ -40,6 +40,7 @@ if __name__ == "__main__":
                 indexes[0],
                 indexes[1],
                 pressure_conversion_factor_to_Pa=1e5,
+                filter_duplicate=True,
             )
             T = temperature + 273.15
 
