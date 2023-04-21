@@ -9,6 +9,18 @@ Dre-norit-R1:
   pure_isotherms: null
   title(s):
   - []
+HEFTI-13x:
+  DOI(s):
+  - 10.1016/j.micromeso.2015.05.044
+  Database Experiment Name: HEFTI-13x
+  adsorbent: 13X
+  mixture_isotherms: null
+  publishers:
+  - Elsevier BV
+  pure_isotherms: null
+  title(s):
+  - - Adsorption equilibrium of binary mixtures of carbon dioxide and nitrogen on
+      zeolites ZSM-5 and 13X
 HEFTI-ZSM5:
   DOI(s):
   - 10.1016/j.micromeso.2015.05.044
