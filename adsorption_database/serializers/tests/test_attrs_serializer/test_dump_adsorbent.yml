@@ -1,11 +1,11 @@
 tree:
 - HDF5 "test_storage.hdf5" {
 - GROUP "/" {
-- '   ATTRIBUTE "density" {'
+- '   ATTRIBUTE "manufacturer" {'
 - '      DATATYPE  H5T_STD_I64LE'
 - '      DATASPACE  SCALAR'
 - '      DATA {'
-- '      (0): 20'
+- '      (0): 100'
 - '      }'
 - '   }'
 - '   ATTRIBUTE "name" {'
@@ -36,7 +36,7 @@ tree:
 - '      DATATYPE  H5T_STD_I64LE'
 - '      DATASPACE  SCALAR'
 - '      DATA {'
-- '      (0): 100'
+- '      (0): 20'
 - '      }'
 - '   }'
 - '}'
